@@ -3,6 +3,7 @@ const morgan = require('morgan');
 const cors = require('cors');
 const getEnv = require('./funcs/getEnv');
 const sendRes = require('./funcs/sendRes');
+const tourRouter = require('./modules/Tour/tourRoute');
 
 //* database setup
 
@@ -34,6 +35,8 @@ app.route('/').all((_, res) => {
         message: 'index route',
     });
 });
+
+app.use('/api/v1/tours',tourRouter)
 
 //* server setup
 const port = getEnv('PORT');
