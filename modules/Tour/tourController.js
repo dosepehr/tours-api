@@ -11,3 +11,43 @@ exports.getTours = async (req, res) => {
         },
     });
 };
+
+exports.getTour = async (req, res) => {
+    const { id } = req.params;
+
+    const tour = await Tour.findById(id);
+
+    sendRes(res, 200, {
+        status: true,
+        data: {
+            tour,
+        },
+    });
+};
+
+exports.addTour = async (req, res) => {
+    await Tour.create(req.body);
+    sendRes(res, 201, {
+        status: true,
+        message: 'tour created',
+    });
+};
+
+exports.updateTour = async (req, res) => {
+    const { id } = req.params;
+    await Tour.findByIdAndUpdate(id, req.body);
+
+    sendRes(res, 200, {
+        status: true,
+        message: 'tour updated',
+    });
+};
+
+exports.deleteTour = async (req, res) => {
+    const { id } = req.params;
+    await Tour.findByIdAndDelete(id);
+    sendRes(res, 204, {
+        status: true,
+        message: 'tour deleted',
+    });
+};
