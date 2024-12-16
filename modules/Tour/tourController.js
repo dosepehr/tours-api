@@ -1,6 +1,13 @@
 const sendRes = require('../../funcs/sendRes');
 const Tour = require('./tourModel');
 
+exports.topTours = async (req, res, next) => {
+    req.query.limit = '5';
+    req.query.sort = '-ratingsAverage,price';
+    req.query.fields = 'name,price,ratingsAverage,summary,difficulty';
+    next();
+};
+
 exports.getTours = async (req, res) => {
     const queryObj = { ...req.query };
 
