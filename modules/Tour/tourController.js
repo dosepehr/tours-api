@@ -2,7 +2,15 @@ const sendRes = require('../../funcs/sendRes');
 const Tour = require('./tourModel');
 
 exports.getTours = async (req, res) => {
-    const tours = await Tour.find();
+    const queryObj = { ...req.query };
+
+
+    // filtering
+    const excludedFields = ['page', 'sort', 'limits', 'fields'];
+    excludedFields.forEach((el) => delete queryObj[el]);
+
+    const query = Tour.find(queryObj);
+    const tours = await Tour.find(query);
     sendRes(res, 200, {
         status: true,
         result: tours.length,
@@ -10,6 +18,7 @@ exports.getTours = async (req, res) => {
             tours,
         },
     });
+    
 };
 
 exports.getTour = async (req, res) => {
