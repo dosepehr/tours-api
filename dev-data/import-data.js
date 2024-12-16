@@ -2,7 +2,7 @@ const fs = require('fs');
 const Tour = require('../modules/Tour/tourModel');
 const process = require('process');
 
-require('../funcs/connectDB');
+require('../utils/connectDB');
 
 // READ JSON FILE
 const tours = JSON.parse(

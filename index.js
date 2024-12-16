@@ -1,13 +1,13 @@
 const express = require('express');
 const morgan = require('morgan');
 const cors = require('cors');
-const getEnv = require('./funcs/getEnv');
-const sendRes = require('./funcs/sendRes');
+const getEnv = require('./utils/getEnv');
+const sendRes = require('./utils/sendRes');
 const tourRouter = require('./modules/Tour/tourRoute');
 
 //* database setup
 
-require('./funcs/connectDB');
+require('./utils/connectDB');
 
 //* express app
 const app = express();
@@ -36,7 +36,7 @@ app.route('/').all((_, res) => {
     });
 });
 
-app.use('/api/v1/tours',tourRouter)
+app.use('/api/v1/tours', tourRouter);
 
 //* server setup
 const port = getEnv('PORT');
