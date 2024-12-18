@@ -37,7 +37,14 @@ app.route('/').all((_, res) => {
 });
 
 app.use('/api/v1/tours', tourRouter);
+//* 404 route
 
+app.all('*', async (req, res) => {
+    sendRes(res, 404, {
+        status: false,
+        message: `Can't find ${req.originalUrl} on this server`,
+    });
+});
 //* server setup
 const port = getEnv('PORT');
 app.listen(+port, () => {
