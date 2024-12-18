@@ -32,19 +32,31 @@ app.use(cors(corsOptions));
 app.route('/').all((_, res) => {
     sendRes(res, 200, {
         status: true,
-        message: 'index route',
+        message: 'welcome home:)',
     });
 });
 
 app.use('/api/v1/tours', tourRouter);
 //* 404 route
-
 app.all('*', async (req, res) => {
     sendRes(res, 404, {
         status: false,
         message: `Can't find ${req.originalUrl} on this server`,
     });
 });
+
+//* error handling middleware
+app.use((err, req, res, next) => {
+    err.statusCode = err.statusCode || 500;
+    err.status = err.status || 'error';
+
+    sendRes(res, err.statusCode, {
+        status: err.status,
+        message: err.message,
+    });
+    next();
+});
+
 //* server setup
 const port = getEnv('PORT');
 app.listen(+port, () => {
