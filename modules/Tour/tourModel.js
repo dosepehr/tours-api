@@ -84,6 +84,21 @@ tourSchema.post('save', function (doc, next) {
     // doc => saved tour
     next();
 });
+
+//* query middleware
+
+tourSchema.pre('find', function (next) {
+    // this points to current query not current document
+    // this.find({ duration: 5 });
+    this.username = 'sepehr';
+    next();
+});
+tourSchema.post('find', function (res, next) {
+    // this points to current query not current document
+    // this.find({ duration: 5 });
+    console.log(this.username);
+    next();
+});
 const Tour = mongoose.model('Tour', tourSchema);
 
 module.exports = Tour;
