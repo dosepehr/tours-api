@@ -1,15 +1,16 @@
 const APIFeatures = require('../../utils/APIFeatures');
 const sendRes = require('../../utils/sendRes');
 const Tour = require('./tourModel');
+const asyncHandler = require('express-async-handler');
 
-exports.topTours = async (req, res, next) => {
+exports.topTours = asyncHandler(async (req, res, next) => {
     req.query.limit = '5';
     req.query.sort = '-ratingsAverage,price';
     req.query.fields = 'name,price,ratingsAverage,summary,difficulty';
     next();
-};
+});
 
-exports.getTours = async (req, res) => {
+exports.getTours = asyncHandler(async (req, res, next) => {
     const features = new APIFeatures(Tour.find(), req.query)
         .filter()
         .sort()
@@ -24,9 +25,9 @@ exports.getTours = async (req, res) => {
             tours,
         },
     });
-};
+});
 
-exports.getTour = async (req, res) => {
+exports.getTour = asyncHandler(async (req, res, next) => {
     const { id } = req.params;
 
     const tour = await Tour.findById(id);
@@ -37,17 +38,17 @@ exports.getTour = async (req, res) => {
             tour,
         },
     });
-};
+});
 
-exports.addTour = async (req, res) => {
+exports.addTour = asyncHandler(async (req, res, next) => {
     await Tour.create(req.body);
     sendRes(res, 201, {
         status: true,
         message: 'tour created',
     });
-};
+});
 
-exports.updateTour = async (req, res) => {
+exports.updateTour = asyncHandler(async (req, res, next) => {
     const { id } = req.params;
     await Tour.findByIdAndUpdate(id, req.body, {
         runValidators: true,
@@ -57,18 +58,17 @@ exports.updateTour = async (req, res) => {
         status: true,
         message: 'tour updated',
     });
-};
+});
 
-exports.deleteTour = async (req, res) => {
+exports.deleteTour = asyncHandler(async (req, res, next) => {
     const { id } = req.params;
     await Tour.findByIdAndDelete(id);
     sendRes(res, 204, {
         status: true,
         message: 'tour deleted',
     });
-};
-
-exports.getTourStats = async (req, res) => {
+});
+exports.getTourStats = asyncHandler(async (req, res, next) => {
     const stats = await Tour.aggregate([
         {
             $match: {
@@ -115,9 +115,9 @@ exports.getTourStats = async (req, res) => {
         message: 'tour updated',
         data: stats,
     });
-};
+});
 
-exports.getMonthlyPlan = async (req, res) => {
+exports.getMonthlyPlan = asyncHandler(async (req, res, next) => {
     const year = +req.params.year;
     const plan = await Tour.aggregate([
         {
@@ -164,4 +164,4 @@ exports.getMonthlyPlan = async (req, res) => {
         message: 'tour updated',
         data: plan,
     });
-};
+});
