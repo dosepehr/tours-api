@@ -10,7 +10,7 @@ export default [
             'no-unused-vars': [
                 'error',
                 {
-                    argsIgnorePattern: '^next$',
+                    argsIgnorePattern: '^next$|^res$|^req$',
                 },
             ],
         },
