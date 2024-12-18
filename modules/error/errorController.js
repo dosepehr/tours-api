@@ -9,22 +9,53 @@ const deleteErrors = (obj) => {
     }
     return obj;
 };
-exports.globalErrorHandler = (err, req, res, next) => {
+
+const sendErrorDev = (err, res) => {
     const statusCode = err.statusCode || 500;
     const message = err.message || 'Internal Server Error';
-    const NODE_ENV = getEnv('NODE_ENV');
-    if (NODE_ENV == 'dev') {
+    sendRes(
+        res,
+        statusCode,
+        deleteErrors({
+            status: false,
+            message: message,
+            errors: err.errors || [],
+            stack: err.stack,
+        }),
+    );
+};
+
+const sendErrorProd = (err, res) => {
+    const statusCode = err.statusCode || 500;
+    const message = err.message || 'Internal Server Error';
+
+    if (err.isOperational) {
         sendRes(
             res,
             statusCode,
             deleteErrors({
-                status: err.status || false,
+                status: false,
                 message: message,
                 errors: err.errors || [],
                 stack: err.stack,
             }),
         );
-        next();
+        // programming or other unknown error: don't leak error details
+    } else {
+        console.log('ERROR 💥', err);
+        sendRes(res, 500, {
+            status: false,
+            message: 'something went wrong',
+        });
+    }
+};
+exports.globalErrorHandler = (err, req, res, next) => {
+    const NODE_ENV = getEnv('NODE_ENV');
+
+    if (NODE_ENV == 'dev') {
+        sendErrorDev(err, res);
+    } else if (NODE_ENV == 'prod') {
+        sendErrorProd(err, res);
     }
 };
 
