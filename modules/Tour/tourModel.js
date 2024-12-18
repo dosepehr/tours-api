@@ -94,11 +94,16 @@ tourSchema.pre('find', function (next) {
     next();
 });
 tourSchema.post('find', function (res, next) {
-    // this points to current query not current document
-    // this.find({ duration: 5 });
-    console.log(this.username);
+    // console.log(this.username);
     next();
 });
+//* aggregation middleware
+
+tourSchema.pre('aggregate', function (next) {
+    // console.log(this);
+    next();
+});
+
 const Tour = mongoose.model('Tour', tourSchema);
 
 module.exports = Tour;
