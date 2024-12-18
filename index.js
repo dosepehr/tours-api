@@ -4,7 +4,8 @@ const cors = require('cors');
 const getEnv = require('./utils/getEnv');
 const sendRes = require('./utils/sendRes');
 const tourRouter = require('./modules/Tour/tourRoute');
-
+const globalErrorHandler = require('./modules/error/errorController');
+const AppError = require('./utils/AppError');
 //* database setup
 
 require('./utils/connectDB');
@@ -38,24 +39,12 @@ app.route('/').all((_, res) => {
 
 app.use('/api/v1/tours', tourRouter);
 //* 404 route
-app.all('*', async (req, res) => {
-    sendRes(res, 404, {
-        status: false,
-        message: `Can't find ${req.originalUrl} on this server`,
-    });
+app.all('*', async (req, res, next) => {
+    next(new AppError(`Can't find ${req.originalUrl} on this server`, 404));
 });
 
 //* error handling middleware
-app.use((err, req, res, next) => {
-    err.statusCode = err.statusCode || 500;
-    err.status = err.status || 'error';
-
-    sendRes(res, err.statusCode, {
-        status: err.status,
-        message: err.message,
-    });
-    next();
-});
+app.use(globalErrorHandler);
 
 //* server setup
 const port = getEnv('PORT');
