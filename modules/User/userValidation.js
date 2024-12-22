@@ -1,6 +1,6 @@
 const yup = require('yup');
 
-const userValidation = yup.object().shape({
+const signupUserSchema = yup.object().shape({
     name: yup.string().required('The name field is required.'),
 
     email: yup
@@ -8,9 +8,7 @@ const userValidation = yup.object().shape({
         .email('Please provide a valid email address.')
         .required('The email field is required.'),
 
-    photo: yup
-        .string()
-        .default('pathToDefaultImage'),
+    photo: yup.string().default('pathToDefaultImage'),
 
     password: yup
         .string()
@@ -23,4 +21,15 @@ const userValidation = yup.object().shape({
         .oneOf([yup.ref('password')], 'Passwords must match.'),
 });
 
-module.exports = userValidation;
+const loginUserSchema = yup.object().shape({
+    password: yup
+        .string()
+        .required('The password field is required.')
+        .min(8, 'The password must be at least 8 characters long.'),
+    email: yup
+        .string()
+        .email('Please provide a valid email address.')
+        .required('The email field is required.'),
+});
+
+module.exports = { loginUserSchema, signupUserSchema };
