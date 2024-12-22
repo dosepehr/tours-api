@@ -14,6 +14,7 @@ const tourRouter = require('./modules/Tour/tourRoute');
 const errorRouter = require('./modules/Error/errorRoute');
 const { globalErrorHandler } = require('./modules/Error/errorController');
 const AppError = require('./utils/AppError');
+const userRouter = require('./modules/User/userRoute');
 //* database setup
 
 require('./utils/connectDB');
@@ -47,6 +48,7 @@ app.route('/').all((_, res) => {
 
 app.use('/api/v1/tours', tourRouter);
 app.use('/api/v1/errors', errorRouter);
+app.use('/api/v1/users', userRouter);
 //* 404 route
 app.all('*', async (req, res, next) => {
     next(new AppError(`Can't find ${req.originalUrl} on this server`, 404));
