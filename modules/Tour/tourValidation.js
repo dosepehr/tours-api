@@ -1,6 +1,6 @@
 const yup = require('yup');
 
-const tourSchema = yup.object().shape({
+const tourValidation = yup.object().shape({
     name: yup
         .string()
         .trim()
@@ -78,4 +78,4 @@ const tourSchema = yup.object().shape({
     secretTour: yup.boolean(),
 });
 
-module.exports = tourSchema;
+module.exports = tourValidation;

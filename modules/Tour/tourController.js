@@ -2,7 +2,7 @@ const APIFeatures = require('../../utils/APIFeatures');
 const sendRes = require('../../utils/sendRes');
 const Tour = require('./tourModel');
 const asyncHandler = require('express-async-handler');
-const tourSchema = require('./tourValidation');
+const tourValidation = require('./tourValidation');
 
 exports.topTours = asyncHandler(async (req, res, next) => {
     req.query.limit = '5';
@@ -42,7 +42,7 @@ exports.getTour = asyncHandler(async (req, res, next) => {
 });
 
 exports.addTour = asyncHandler(async (req, res, next) => {
-    await tourSchema.validate(req.body, { context: { isUpdate: false } });
+    await tourValidation.validate(req.body, { context: { isUpdate: false } });
     await Tour.create(req.body);
     sendRes(res, 201, {
         status: true,
@@ -52,7 +52,7 @@ exports.addTour = asyncHandler(async (req, res, next) => {
 
 exports.updateTour = asyncHandler(async (req, res, next) => {
     const { id } = req.params;
-    await tourSchema.validate(req.body, { context: { isUpdate: true } });
+    await tourValidation.validate(req.body, { context: { isUpdate: true } });
 
     await Tour.findByIdAndUpdate(id, req.body, {
         runValidators: true,
