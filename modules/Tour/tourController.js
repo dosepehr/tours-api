@@ -2,6 +2,7 @@ const APIFeatures = require('../../utils/APIFeatures');
 const sendRes = require('../../utils/sendRes');
 const Tour = require('./tourModel');
 const asyncHandler = require('express-async-handler');
+const tourSchema = require('./tourValidation');
 
 exports.topTours = asyncHandler(async (req, res, next) => {
     req.query.limit = '5';
@@ -41,11 +42,12 @@ exports.getTour = asyncHandler(async (req, res, next) => {
 });
 
 exports.addTour = asyncHandler(async (req, res, next) => {
-    await Tour.create(req.body);
-    sendRes(res, 201, {
-        status: true,
-        message: 'tour created',
-    });
+        await tourSchema.validate(req.body);
+        await Tour.create(req.body);
+        sendRes(res, 201, {
+            status: true,
+            message: 'tour created',
+        });
 });
 
 exports.updateTour = asyncHandler(async (req, res, next) => {

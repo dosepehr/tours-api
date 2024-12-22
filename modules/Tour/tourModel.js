@@ -5,29 +5,28 @@ const tourSchema = new mongoose.Schema(
     {
         name: {
             type: String,
-            required: [true, 'A tour must have a name'],
+            required: true,
             unique: true,
             trim: true,
-            minLength: [10, 'error'],
-            maxLength: [50, 'error'],
+            minLength: 10,
+            maxLength: 50,
         },
         slug: {
             type: String,
         },
         duration: {
             type: Number,
-            required: [true, 'A tour must have a duration'],
+            required: true
         },
         maxGroupSize: {
             type: Number,
-            required: [true, 'A tour must have a group size'],
+            required: true
         },
         difficulty: {
             type: String,
-            required: [true, 'A tour must have a difficulty'],
+            required: true,
             enum: {
                 values: ['easy', 'medium', 'difficult'],
-                message: 'difficulty is easy,medium or difficult',
             },
         },
         ratingsAverage: {
@@ -42,21 +41,15 @@ const tourSchema = new mongoose.Schema(
         },
         price: {
             type: Number,
-            required: [true, 'A tour must have a price'],
+            required: true
         },
         priceDiscount: {
             type: Number,
-            validator: {
-                validate: function (val) {
-                    return val < this.price;
-                },
-                message: 'error',
-            },
         },
         summary: {
             type: String,
             trim: true,
-            required: [true, 'A tour must have a description'],
+            required: true,
         },
         description: {
             type: String,
@@ -64,7 +57,7 @@ const tourSchema = new mongoose.Schema(
         },
         cover: {
             type: String,
-            required: [true, 'A tour must have a cover'],
+            required: true,
         },
         images: [String],
         startDates: [Date],
