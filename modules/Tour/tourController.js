@@ -42,16 +42,18 @@ exports.getTour = asyncHandler(async (req, res, next) => {
 });
 
 exports.addTour = asyncHandler(async (req, res, next) => {
-        await tourSchema.validate(req.body);
-        await Tour.create(req.body);
-        sendRes(res, 201, {
-            status: true,
-            message: 'tour created',
-        });
+    await tourSchema.validate(req.body, { context: { isUpdate: false } });
+    await Tour.create(req.body);
+    sendRes(res, 201, {
+        status: true,
+        message: 'tour created',
+    });
 });
 
 exports.updateTour = asyncHandler(async (req, res, next) => {
     const { id } = req.params;
+    await tourSchema.validate(req.body, { context: { isUpdate: true } });
+
     await Tour.findByIdAndUpdate(id, req.body, {
         runValidators: true,
     });
