@@ -3,43 +3,43 @@ const sendRes = require('../../utils/sendRes');
 const asyncHandler = require('express-async-handler');
 const AppError = require('../../utils/AppError');
 
-const deleteErrors = (obj) => {
-    if (obj.errors.length == 0) {
-        delete obj['errors'];
-    }
-    return obj;
+const handleCastErrorDB = (err) => {
+    const message = `Invalid ${err.path}: ${err.value}.`;
+    return new AppError(message, 400);
+};
+const handleDuplicateFieldsDB = (err) => {
+    const value = err.errorResponse.errmsg.match(/(["'])(\\?.)*?\1/)[0];
+
+    const message = `Duplicate field value: ${value}. Please use another value!`;
+    return new AppError(message, 400);
+};
+
+const handleValidationErrorDB = (err) => {
+    const errors = Object.values(err.errors).map((el) => el.message);
+    const message = `Invalid input data`;
+    return new AppError(message, 400, errors);
 };
 
 const sendErrorDev = (err, res) => {
     const statusCode = err.statusCode || 500;
-    const message = err.message || 'Internal Server Error';
-    sendRes(
-        res,
-        statusCode,
-        deleteErrors({
-            status: false,
-            message: message,
-            errors: err.errors || [],
-            stack: err.stack,
-        }),
-    );
+    const error = err || 'Internal Server Error';
+    sendRes(res, statusCode, {
+        status: false,
+        error,
+        message: err.message,
+        stack: err.stack,
+    });
 };
 
 const sendErrorProd = (err, res) => {
     const statusCode = err.statusCode || 500;
     const message = err.message || 'Internal Server Error';
-
     if (err.isOperational) {
-        sendRes(
-            res,
-            statusCode,
-            deleteErrors({
-                status: false,
-                message: message,
-                errors: err.errors || [],
-                stack: err.stack,
-            }),
-        );
+        sendRes(res, statusCode, {
+            status: false,
+            message: message,
+            errors: err.errors,
+        });
         // programming or other unknown error: don't leak error details
     } else {
         console.log('ERROR 💥', err);
@@ -55,7 +55,13 @@ exports.globalErrorHandler = (err, req, res, next) => {
     if (NODE_ENV == 'dev') {
         sendErrorDev(err, res);
     } else if (NODE_ENV == 'prod') {
-        sendErrorProd(err, res);
+        let error = { ...err };
+        if (err.name === 'CastError') error = handleCastErrorDB(error);
+        if (err.code === 11000) error = handleDuplicateFieldsDB(error);
+        if (err.name === 'ValidationError')
+            error = handleValidationErrorDB(error);
+
+        sendErrorProd(error, res);
     }
 };
 
