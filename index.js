@@ -1,3 +1,10 @@
+const process = require('process');
+process.on('uncaughtException', (err) => {
+    console.log('uncaughtException 💥 shutting down');
+    console.log(err);
+    process.exit(1);
+});
+
 const express = require('express');
 const morgan = require('morgan');
 const cors = require('cors');
@@ -50,6 +57,14 @@ app.use(globalErrorHandler);
 
 //* server setup
 const port = getEnv('PORT');
-app.listen(+port, () => {
+const server = app.listen(+port, () => {
     console.log(`Server is running on port ${port}`);
+});
+
+process.on('unhandledRejection', (err) => {
+    console.log('unhandledRejection 💥 shutting down');
+    console.log(err.name, err.message);
+    server.close(() => {
+        process.exit(1);
+    });
 });

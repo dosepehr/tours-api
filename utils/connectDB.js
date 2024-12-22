@@ -5,4 +5,4 @@ const dbURI = getEnv('dbURI');
 mongoose
     .connect(dbURI)
     .then(() => console.log('DB Connected!'))
-    .catch((err) => console.log(err));
+    .catch((err) => console.log('db connection error : ', err));
