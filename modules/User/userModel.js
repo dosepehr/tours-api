@@ -1,5 +1,5 @@
 const mongoose = require('mongoose');
-
+const crypto = require('crypto');
 const userSchema = new mongoose.Schema(
     {
         name: {
@@ -30,6 +30,8 @@ const userSchema = new mongoose.Schema(
             required: true,
         },
         passwordChangedAt: Date,
+        passwordResetToken: String,
+        passwordResetExpires: Date,
     },
     {
         toJSON: { virtuals: true },
@@ -59,6 +61,15 @@ userSchema.methods.changedPasswordAfter = function (JWTTimestamp) {
 
     // False means NOT changed
     return false;
+};
+userSchema.methods.createResetPasswordToken = function () {
+    const resetToken = crypto.randomBytes(32).toString('hex');
+    this.passwordResetToken = crypto
+        .createHash('sha256')
+        .update(resetToken)
+        .digest('hex');
+    this.passwordResetExpires = Date.now() + 10 * 60 * 1000; //10 minutes
+    return resetToken;
 };
 const User = mongoose.model('User', userSchema);
 

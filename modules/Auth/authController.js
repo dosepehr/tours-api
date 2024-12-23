@@ -135,7 +135,9 @@ exports.getMe = expressAsyncHandler(async (req, res, next) => {
     // 2) Verification token
     const decoded = await verifyToken(token);
     // 3) check if user exists
-    const currentUser = await User.findById(decoded?.id).select('-password -passwordChangedAt -updatedAt -createdAt -_id -__v');
+    const currentUser = await User.findById(decoded?.id).select(
+        '-password -passwordChangedAt -updatedAt -createdAt -_id -__v',
+    );
     if (!currentUser) {
         return next(new AppError('Invalid token', 401));
     }
@@ -143,4 +145,37 @@ exports.getMe = expressAsyncHandler(async (req, res, next) => {
         status: true,
         user: currentUser,
     });
+});
+
+exports.forgotPassword = expressAsyncHandler(async (req, res, next) => {
+    // get user based on email
+    const user = await User.findOne({ email: req.body.email });
+    if (!user) {
+        return next(new AppError('no user found with this email address', 404));
+    }
+    // generate random reset token
+    const resetToken = user.createResetPasswordToken();
+    await user.save({
+        validateBeforeSave: false,
+    });
+    sendRes(res, 200, {
+        resetToken,
+    });
+    // send back to user's email
+});
+exports.resetPassword = expressAsyncHandler(async (req, res, next) => {
+    // get user based on email
+    const user = await User.findOne({ email: req.body.email });
+    if (!user) {
+        return next(new AppError('no user found with this email address', 404));
+    }
+    // generate random reset token
+    const resetToken = user.createResetPasswordToken();
+    await user.save({
+        // validateBeforeSave: false,
+    });
+    sendRes(res, 200, {
+        resetToken,
+    });
+    // send back to user's email
 });

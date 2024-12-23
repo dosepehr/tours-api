@@ -32,4 +32,5 @@ const loginUserSchema = yup.object().shape({
         .required('The email field is required.'),
 });
 
+
 module.exports = { loginUserSchema, signupUserSchema };
