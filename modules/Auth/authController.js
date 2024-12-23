@@ -1,12 +1,11 @@
 const expressAsyncHandler = require('express-async-handler');
-const User = require('./userModel');
+const User = require('./../User/userModel');
 const sendRes = require('../../utils/sendRes');
-const { loginUserSchema, signupUserSchema } = require('./userValidation');
+const { loginUserSchema, signupUserSchema } = require('./../User/userValidation');
 const comparePassword = require('../../utils/comparePassword');
-const verifyToken = require('../../utils/verifyToken');
 const hashPassword = require('../../utils/hashPassword');
 const signToken = require('../../utils/signToken');
-const getBearerToken = require('../../utils/getBearerToken');
+
 exports.signup = expressAsyncHandler(async (req, res, next) => {
     const userData = {
         name: req.body.name,
@@ -59,7 +58,7 @@ exports.login = expressAsyncHandler(async (req, res, next) => {
         id: user._id,
     });
     sendRes(res, 200, {
-        status:true,
+        status: true,
         token,
     });
 });
