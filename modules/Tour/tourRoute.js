@@ -9,10 +9,11 @@ const {
     getTourStats,
     getMonthlyPlan,
 } = require('./tourController');
+const { protect } = require('../Auth/authController');
 
 const tourRouter = express.Router();
 
-tourRouter.route('/').get(getTours).post(addTour);
+tourRouter.route('/').get(protect, getTours).post(addTour);
 tourRouter.route('/top').get(topTours, getTours);
 tourRouter.route('/stats').get(getTourStats);
 tourRouter.route('/monthly-plan/:year').get(getMonthlyPlan);

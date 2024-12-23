@@ -1,8 +1,10 @@
+const { promisify } = require('util');
 const jwt = require('jsonwebtoken');
 const getEnv = require('./getEnv');
 
 const secretKey = getEnv('jwtSecretToken');
 
-const verifyToken = (token) => jwt.verify(token, secretKey);
+const verifyToken = async (token) =>
+    await promisify(jwt.verify)(token, secretKey);
 
 module.exports = verifyToken;

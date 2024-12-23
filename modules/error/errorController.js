@@ -23,6 +23,9 @@ const handleValidationErrorDB = (err) => {
     return new AppError(message, 400, errors);
 };
 
+const handleJWTError = () => new AppError('Invalid token', 401);
+const handleTokenExpiredError = () =>
+    new AppError('your token has been expired', 401);
 const sendErrorDev = (err, res) => {
     const statusCode = err.statusCode || 500;
     const error = err || 'Internal Server Error';
@@ -54,16 +57,17 @@ const sendErrorProd = (err, res) => {
 };
 exports.globalErrorHandler = (err, req, res, next) => {
     const NODE_ENV = getEnv('NODE_ENV');
-
     if (NODE_ENV == 'dev') {
         sendErrorDev(err, res);
     } else if (NODE_ENV == 'prod') {
-        let error = { ...err };
+        let error = { ...err, message: err.message };
+        console.log(err.message);
         if (err.name === 'CastError') error = handleCastErrorDB(error);
         if (err.code === 11000) error = handleDuplicateFieldsDB(error);
         if (err.name === 'ValidationError')
             error = handleValidationErrorDB(error);
-
+        if (err.name == 'JsonWebTokenError') error = handleJWTError();
+        if (err.name == 'TokenExpiredError') error = handleTokenExpiredError();
         sendErrorProd(error, res);
     }
 };
