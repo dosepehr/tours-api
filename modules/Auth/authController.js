@@ -10,6 +10,7 @@ const hashPassword = require('../../utils/hashPassword');
 const signToken = require('../../utils/signToken');
 const AppError = require('../../utils/AppError');
 const verifyToken = require('../../utils/verifyToken');
+const { forgotPasswordSchema } = require('./authValidation');
 
 exports.signup = expressAsyncHandler(async (req, res, next) => {
     const userData = {
@@ -149,6 +150,9 @@ exports.getMe = expressAsyncHandler(async (req, res, next) => {
 
 exports.forgotPassword = expressAsyncHandler(async (req, res, next) => {
     // get user based on email
+    await forgotPasswordSchema.validate({
+        email: req.body.email,
+    });
     const user = await User.findOne({ email: req.body.email });
     if (!user) {
         return next(new AppError('no user found with this email address', 404));
