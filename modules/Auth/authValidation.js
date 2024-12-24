@@ -17,5 +17,23 @@ const resetPasswordSchema = yup.object().shape({
         .required('The confirm password field is required.')
         .oneOf([yup.ref('password')], 'Passwords must match.'),
 });
+const updatePasswordSchema = yup.object().shape({
+    password: yup
+        .string()
+        .required('The password field is required.')
+        .min(8, 'The password must be at least 8 characters long.'),
 
-module.exports = { forgotPasswordSchema, resetPasswordSchema };
+    confirmPassword: yup
+        .string()
+        .required('The confirm password field is required.')
+        .oneOf([yup.ref('password')], 'Passwords must match.'),
+    currentPassword: yup
+        .string()
+        .required('The current password field is required.')
+        .min(8, 'The password must be at least 8 characters long.'),
+});
+module.exports = {
+    forgotPasswordSchema,
+    resetPasswordSchema,
+    updatePasswordSchema,
+};

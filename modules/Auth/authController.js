@@ -4,6 +4,7 @@ const sendRes = require('../../utils/sendRes');
 const {
     loginUserSchema,
     signupUserSchema,
+    updatePasswordSchema,
 } = require('./../User/userValidation');
 const comparePassword = require('../../utils/comparePassword');
 const hashPassword = require('../../utils/hashPassword');
@@ -233,5 +234,36 @@ exports.resetPassword = expressAsyncHandler(async (req, res, next) => {
         status: true,
         message: 'your password changed successfully',
         token,
+    });
+});
+
+exports.updatePassword = expressAsyncHandler(async (req, res, next) => {
+    // get user from collection
+    const user = await User.findById(req.user.id);
+    if (!user) return next(new AppError('no user found', 404));
+
+    // compare user's password
+    const currentPassword = req.body.currentPassword;
+    const checkPasswords = await comparePassword(
+        currentPassword,
+        user.password,
+    );
+    if (!checkPasswords) {
+        return next(new AppError('current password is not correct', 401));
+    }
+
+    // set user's new password
+    await updatePasswordSchema.validate(req.body);
+    user.password = await hashPassword(req.body.password);
+    user.confirmPassword = req.body.confirmPassword;
+    await user.save();
+    // log user in, send JWT
+    const newToken = signToken({
+        id: user._id,
+    });
+    res.status(200).json({
+        status: true,
+        message: 'your password changed successfully',
+        token: newToken,
     });
 });
