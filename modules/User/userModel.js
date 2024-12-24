@@ -42,7 +42,7 @@ const userSchema = new mongoose.Schema(
 
 userSchema.pre('save', function (next) {
     this.confirmPassword = undefined;
-    // if (!this.isModified('password') || this.isNew) return next();
+    if (!this.isModified('password')) return next();
 
     this.passwordChangedAt = Date.now() - 1000;
     next();
@@ -69,6 +69,7 @@ userSchema.methods.createResetPasswordToken = function () {
         .update(resetToken)
         .digest('hex');
     this.passwordResetExpires = Date.now() + 10 * 60 * 1000; //10 minutes
+
     return resetToken;
 };
 const User = mongoose.model('User', userSchema);

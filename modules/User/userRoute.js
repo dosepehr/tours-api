@@ -13,6 +13,6 @@ userRouter.route('/signup').post(signup);
 userRouter.route('/login').post(login);
 
 userRouter.route('/forgotPassword').post(forgotPassword);
-userRouter.route('/resetPassword').post(resetPassword);
+userRouter.route('/resetPassword/:token').post(resetPassword);
 userRouter.route('/getMe').get(getMe);
 module.exports = userRouter;

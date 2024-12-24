@@ -10,8 +10,12 @@ const hashPassword = require('../../utils/hashPassword');
 const signToken = require('../../utils/signToken');
 const AppError = require('../../utils/AppError');
 const verifyToken = require('../../utils/verifyToken');
-const { forgotPasswordSchema } = require('./authValidation');
+const {
+    forgotPasswordSchema,
+    resetPasswordSchema,
+} = require('./authValidation');
 const sendEmail = require('../../utils/sendEmail');
+const crypto = require('crypto');
 exports.signup = expressAsyncHandler(async (req, res, next) => {
     const userData = {
         name: req.body.name,
@@ -172,43 +176,62 @@ exports.forgotPassword = expressAsyncHandler(async (req, res, next) => {
 
     const message = `Forgot your password? Submit a PATCH request with your new password and passwordConfirm to: ${resetURL}.\nIf you didn't forget your password, please ignore this email!`;
 
-    try {
-        await sendEmail({
-            email: user.email,
-            subject: 'Your password reset token (valid for 10 min)',
-            message,
-        });
+    // try {
+    //     await sendEmail({
+    //         email: user.email,
+    //         subject: 'Your password reset token (valid for 10 min)',
+    //         message,
+    //     });
 
-        res.status(200).json({
-            status: 'success',
-            message: 'Token sent to email!',
-        });
-    } catch (err) {
-        user.passwordResetToken = undefined;
-        user.passwordResetExpires = undefined;
-        await user.save({ validateBeforeSave: false });
+    //     res.status(200).json({
+    //         status: 'success',
+    //         message: 'Token sent to email!',
+    //     });
+    // } catch (err) {
+    //     user.passwordResetToken = undefined;
+    //     user.passwordResetExpires = undefined;
+    //     await user.save({ validateBeforeSave: false });
 
-        return next(
-            new AppError(
-                'There was an error sending the email. Try again later!',
-            ),
-            500,
-        );
-    }
+    //     return next(
+    //         new AppError(
+    //             'There was an error sending the email. Try again later!',
+    //         ),
+    //         500,
+    //     );
+    // }
 });
 exports.resetPassword = expressAsyncHandler(async (req, res, next) => {
-    // get user based on email
-    const user = await User.findOne({ email: req.body.email });
+    // get user based on token
+    const hashedToken = crypto
+        .createHash('sha256')
+        .update(req.params.token)
+        .digest('hex');
+
+    const user = await User.findOne({
+        passwordResetToken: hashedToken,
+        passwordResetExpires: {
+            $gt: Date.now(),
+        },
+    });
     if (!user) {
-        return next(new AppError('no user found with this email address', 404));
+        return next(new AppError('token is invalid or expired', 400));
     }
-    // generate random reset token
-    const resetToken = user.createResetPasswordToken();
-    await user.save({
-        // validateBeforeSave: false,
+
+    // set the new password if token was valid
+    await resetPasswordSchema.validate(req.body);
+    user.password = await hashPassword(req.body.password);
+    user.confirmPassword = req.body.confirmPassword;
+    user.passwordResetToken = undefined;
+    user.passwordResetExpires = undefined;
+    await user.save();
+    // update users changePasswordAt
+    // log user in & send token
+    const token = signToken({
+        id: user._id,
     });
-    sendRes(res, 200, {
-        resetToken,
+    res.status(200).json({
+        status: true,
+        message: 'your password changed successfully',
+        token,
     });
-    // send back to user's email
 });
