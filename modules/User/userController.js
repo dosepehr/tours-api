@@ -31,3 +31,11 @@ exports.deleteMe = expressAsyncHandler(async (req, res, next) => {
         data: null,
     });
 });
+
+exports.getUsers = expressAsyncHandler(async (req, res, next) => {
+    const users = await User.find({ active: { $ne: false } });
+    res.status(200).json({
+        status: true,
+        data: users,
+    });
+});

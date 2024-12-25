@@ -7,10 +7,12 @@ const {
     forgotPassword,
     updatePassword,
     protect,
+    restrictTo,
 } = require('./../Auth/authController');
-const { updateMe, deleteMe } = require('./userController');
+const { updateMe, deleteMe, getUsers } = require('./userController');
 const userRouter = express.Router();
 
+userRouter.route('/').get(protect, restrictTo('admin'), getUsers);
 userRouter.route('/signup').post(signup);
 userRouter.route('/login').post(login);
 
