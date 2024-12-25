@@ -35,13 +35,17 @@ exports.signup = expressAsyncHandler(async (req, res, next) => {
     const token = signToken({
         id: newUser._id,
     });
-    sendRes(res, 201, {
-        status: true,
-        token,
-        data: {
-            user: newUser,
-        },
-    });
+    res.cookie('auth', token, {
+        expires: new Date(Date.now() + 90 * 24 * 60 * 60 * 1000),
+        secure: false,
+        httpOnly: true,
+    })
+        .status(201)
+        .json({
+            status: true,
+            token,
+            data: newUser,
+        });
 });
 
 exports.login = expressAsyncHandler(async (req, res, next) => {
