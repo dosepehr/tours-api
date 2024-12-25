@@ -2,7 +2,7 @@ const expressAsyncHandler = require('express-async-handler');
 const User = require('./userModel');
 const AppError = require('../../utils/AppError');
 const { editUserSchema } = require('./userValidation');
-exports.editUserData = expressAsyncHandler(async (req, res, next) => {
+exports.updateMe = expressAsyncHandler(async (req, res, next) => {
     // get user from token
     const userId = req?.user?.id;
     if (!userId) {
@@ -20,5 +20,14 @@ exports.editUserData = expressAsyncHandler(async (req, res, next) => {
     res.status(200).json({
         status: true,
         data: updatedUser,
+    });
+});
+
+exports.deleteMe = expressAsyncHandler(async (req, res, next) => {
+    await User.findByIdAndUpdate(req.user.id, { active: false });
+
+    res.status(204).json({
+        status: true,
+        data: null,
     });
 });

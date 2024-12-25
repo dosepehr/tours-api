@@ -8,7 +8,7 @@ const {
     updatePassword,
     protect,
 } = require('./../Auth/authController');
-const { editUserData } = require('./userController');
+const { updateMe, deleteMe } = require('./userController');
 const userRouter = express.Router();
 
 userRouter.route('/signup').post(signup);
@@ -17,6 +17,7 @@ userRouter.route('/login').post(login);
 userRouter.route('/forgotPassword').post(forgotPassword);
 userRouter.route('/resetPassword/:token').post(resetPassword);
 userRouter.route('/getMe').get(getMe);
-userRouter.route('/updatePassword').post(protect, updatePassword);
-userRouter.route('/updateMe').post(protect, editUserData);
+userRouter.route('/updatePassword').patch(protect, updatePassword);
+userRouter.route('/updateMe').patch(protect, updateMe);
+userRouter.route('/deleteMe').patch(protect, deleteMe);
 module.exports = userRouter;
