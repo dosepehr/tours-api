@@ -10,34 +10,52 @@ const morgan = require('morgan');
 const cors = require('cors');
 const getEnv = require('./utils/getEnv');
 const sendRes = require('./utils/sendRes');
+//* routes & error handling
 const tourRouter = require('./modules/Tour/tourRoute');
 const errorRouter = require('./modules/Error/errorRoute');
 const { globalErrorHandler } = require('./modules/Error/errorController');
-const AppError = require('./utils/AppError');
 const userRouter = require('./modules/User/userRoute');
+const AppError = require('./utils/AppError');
 
+//* security
 const { rateLimit } = require('express-rate-limit');
-
+const mongoSanitize = require('express-mongo-sanitize');
+const helmet = require('helmet');
+const { xss } = require('express-xss-sanitizer');
+const bodyParser = require('body-parser');
+const hpp = require('hpp');
 const limiter = rateLimit({
     windowMs: 60 * 60 * 1000, // 15 minutes
     message: 'Too many requests from this IP, please try again in an hour',
     limit: 100, // Limit each IP to 100 requests per `window` (here, per 15 minutes).
     standardHeaders: 'draft-8', // draft-6: `RateLimit-*` headers; draft-7 & draft-8: combined `RateLimit` header
     legacyHeaders: false, // Disable the `X-RateLimit-*` headers.
-    // store: ... , // Redis, Memcached, etc. See below.
 });
 
-// Apply the rate limiting middleware to all requests.
 //* database setup
-
 require('./utils/connectDB');
 
 //* express app
 const app = express();
-app.use(express.json());
+app.use(express.json({ limit: '10kb' }));
+app.use(bodyParser.json());
 app.use(morgan('dev'));
 app.use('/api', limiter);
-
+app.use(helmet());
+app.use(mongoSanitize());
+app.use(xss());
+app.use(
+    hpp({
+        whitelist: [
+            'duration',
+            'ratingsQuantity',
+            'ratingsAverage',
+            'maxGroupSize',
+            'price',
+            'difficulty',
+        ],
+    }),
+);
 const whitelist = ['http://localhost:3000'];
 const corsOptions = {
     origin: function (origin, callback) {
