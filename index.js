@@ -15,6 +15,19 @@ const errorRouter = require('./modules/Error/errorRoute');
 const { globalErrorHandler } = require('./modules/Error/errorController');
 const AppError = require('./utils/AppError');
 const userRouter = require('./modules/User/userRoute');
+
+const { rateLimit } = require('express-rate-limit');
+
+const limiter = rateLimit({
+    windowMs: 60 * 60 * 1000, // 15 minutes
+    message: 'Too many requests from this IP, please try again in an hour',
+    limit: 100, // Limit each IP to 100 requests per `window` (here, per 15 minutes).
+    standardHeaders: 'draft-8', // draft-6: `RateLimit-*` headers; draft-7 & draft-8: combined `RateLimit` header
+    legacyHeaders: false, // Disable the `X-RateLimit-*` headers.
+    // store: ... , // Redis, Memcached, etc. See below.
+});
+
+// Apply the rate limiting middleware to all requests.
 //* database setup
 
 require('./utils/connectDB');
@@ -23,6 +36,7 @@ require('./utils/connectDB');
 const app = express();
 app.use(express.json());
 app.use(morgan('dev'));
+app.use('/api', limiter);
 
 const whitelist = ['http://localhost:3000'];
 const corsOptions = {
