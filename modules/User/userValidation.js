@@ -32,5 +32,11 @@ const loginUserSchema = yup.object().shape({
         .required('The email field is required.'),
 });
 
+const editUserSchema = yup.object().shape({
+    name: yup.string(),
+    email: yup
+        .string()
+        .email('Please provide a valid email address.')
+});
 
-module.exports = { loginUserSchema, signupUserSchema };
+module.exports = { loginUserSchema, signupUserSchema, editUserSchema };

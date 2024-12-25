@@ -4,7 +4,6 @@ const sendRes = require('../../utils/sendRes');
 const {
     loginUserSchema,
     signupUserSchema,
-    updatePasswordSchema,
 } = require('./../User/userValidation');
 const comparePassword = require('../../utils/comparePassword');
 const hashPassword = require('../../utils/hashPassword');
@@ -14,6 +13,7 @@ const verifyToken = require('../../utils/verifyToken');
 const {
     forgotPasswordSchema,
     resetPasswordSchema,
+    updatePasswordSchema,
 } = require('./authValidation');
 const sendEmail = require('../../utils/sendEmail');
 const crypto = require('crypto');
