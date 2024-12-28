@@ -1,12 +1,11 @@
 const fs = require('fs');
 const Tour = require('../modules/Tour/tourModel');
 const process = require('process');
-
 require('../utils/connectDB');
 
 // READ JSON FILE
 const tours = JSON.parse(
-    fs.readFileSync(`${__dirname}/tours-simple.json`, 'utf-8'),
+    fs.readFileSync(`${__dirname}/tours.json`, 'utf-8'),
 );
 
 // IMPORT DATA INTO DB

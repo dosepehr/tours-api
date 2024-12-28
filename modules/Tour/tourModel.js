@@ -16,11 +16,11 @@ const tourSchema = new mongoose.Schema(
         },
         duration: {
             type: Number,
-            required: true
+            required: true,
         },
         maxGroupSize: {
             type: Number,
-            required: true
+            required: true,
         },
         difficulty: {
             type: String,
@@ -41,7 +41,7 @@ const tourSchema = new mongoose.Schema(
         },
         price: {
             type: Number,
-            required: true
+            required: true,
         },
         priceDiscount: {
             type: Number,
@@ -55,7 +55,7 @@ const tourSchema = new mongoose.Schema(
             type: String,
             trim: true,
         },
-        cover: {
+        imageCover: {
             type: String,
             required: true,
         },
@@ -65,6 +65,29 @@ const tourSchema = new mongoose.Schema(
             type: Boolean,
             default: false,
         },
+        startLocation: {
+            type: {
+                type: String,
+                default: 'Point',
+                enum: ['Point'],
+            },
+            coordinates: [Number],
+            address: String,
+            description: String,
+        },
+        locations: [
+            {
+                type: {
+                    type: String,
+                    default: 'Point',
+                    enum: ['Point'],
+                },
+                coordinates: [Number],
+                address: String,
+                description: String,
+                day: Number,
+            },
+        ],
     },
     {
         toJSON: { virtuals: true },
