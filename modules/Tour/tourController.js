@@ -18,7 +18,10 @@ exports.getTours = asyncHandler(async (req, res, next) => {
         .limit()
         .paginate();
 
-    const tours = await features.query;
+    const tours = await features.query.populate(
+        'guides',
+        '-__v -passwordChangedAt -createdAt -updatedAt -password',
+    );
     sendRes(res, 200, {
         status: true,
         result: tours.length,
@@ -31,7 +34,10 @@ exports.getTours = asyncHandler(async (req, res, next) => {
 exports.getTour = asyncHandler(async (req, res, next) => {
     const { id } = req.params;
 
-    const tour = await Tour.findById(id);
+    const tour = await Tour.findById(id).populate(
+        'guides',
+        '-__v -passwordChangedAt -createdAt -updatedAt -password',
+    );
 
     sendRes(res, 200, {
         status: true,
@@ -42,7 +48,7 @@ exports.getTour = asyncHandler(async (req, res, next) => {
 });
 
 exports.addTour = asyncHandler(async (req, res, next) => {
-    await tourValidation.validate(req.body, { context: { isUpdate: false } });
+    // await tourValidation.validate(req.body, { context: { isUpdate: false } }); TODO edit this
     await Tour.create(req.body);
     sendRes(res, 201, {
         status: true,
@@ -52,7 +58,7 @@ exports.addTour = asyncHandler(async (req, res, next) => {
 
 exports.updateTour = asyncHandler(async (req, res, next) => {
     const { id } = req.params;
-    await tourValidation.validate(req.body, { context: { isUpdate: true } });
+    // await tourValidation.validate(req.body, { context: { isUpdate: true } });
 
     await Tour.findByIdAndUpdate(id, req.body, {
         runValidators: true,

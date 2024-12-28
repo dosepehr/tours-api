@@ -88,6 +88,12 @@ const tourSchema = new mongoose.Schema(
                 day: Number,
             },
         ],
+        guides: [
+            {
+                type: mongoose.Schema.ObjectId,
+                ref: 'User',
+            },
+        ],
     },
     {
         toJSON: { virtuals: true },
@@ -123,10 +129,14 @@ tourSchema.pre('find', function (next) {
     this.username = 'sepehr';
     next();
 });
-tourSchema.post('find', function (res, next) {
-    // console.log(this.username);
+tourSchema.pre(/^find/, function (next) {
+    this.populate(
+        'guides',
+        '-__v -passwordChangedAt -createdAt -updatedAt -password',
+    );
     next();
 });
+
 //* aggregation middleware
 
 tourSchema.pre('aggregate', function (next) {
