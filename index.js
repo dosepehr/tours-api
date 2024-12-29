@@ -24,6 +24,7 @@ const helmet = require('helmet');
 const { xss } = require('express-xss-sanitizer');
 const bodyParser = require('body-parser');
 const hpp = require('hpp');
+const reviewRouter = require('./modules/Review/reviewRoute');
 const limiter = rateLimit({
     windowMs: 60 * 60 * 1000, // 15 minutes
     message: 'Too many requests from this IP, please try again in an hour',
@@ -81,6 +82,7 @@ app.route('/').all((_, res) => {
 app.use('/api/v1/tours', tourRouter);
 app.use('/api/v1/errors', errorRouter);
 app.use('/api/v1/users', userRouter);
+app.use('/api/v1/reviews', reviewRouter);
 //* 404 route
 app.all('*', async (req, res, next) => {
     next(new AppError(`Can't find ${req.originalUrl} on this server`, 404));

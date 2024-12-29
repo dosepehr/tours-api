@@ -12,6 +12,11 @@ const reviewSchema = new mongoose.Schema(
             min: 1,
             max: 5,
         },
+        status: {
+            type: Number,
+            enum: [0, 1],
+            default: 0,
+        },
         user: {
             type: mongoose.Schema.ObjectId,
             ref: 'User',
