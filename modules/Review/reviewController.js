@@ -37,5 +37,39 @@ exports.changeReviewStatus = expressAsyncHandler(async (req, res, next) => {
 });
 exports.deleteReview = expressAsyncHandler(async (req, res, next) => {});
 exports.getReview = expressAsyncHandler(async (req, res, next) => {});
-exports.getReviewByTour = expressAsyncHandler(async (req, res, next) => {});
-exports.getReviewByUser = expressAsyncHandler(async (req, res, next) => {});
+exports.getReviewByTour = expressAsyncHandler(async (req, res, next) => {
+    const { slug } = req.params;
+    const { status = 1 } = req.query;
+
+    const filteredReviews = await Review.find({
+        status,
+    })
+        .populate({
+            path: 'tour',
+            match: { slug },
+            select: '-__v -createdAt -updatedAt',
+        })
+        .populate('user', '-__v -createdAt -updatedAt')
+        .lean();
+
+    const reviews = filteredReviews.filter((review) => review.tour);
+
+    res.status(200).json({
+        status: true,
+        length: reviews.length,
+        reviews,
+    });
+});
+
+exports.getReviewByUser = expressAsyncHandler(async (req, res, next) => {
+    const { userId } = req.params;
+    const { status = 1 } = req.query;
+    const userReviews = await Review.find({ user: userId, status })
+        .populate('tour', '-__v -createdAt -updatedAt')
+        .populate('user', '-__v -createdAt -updatedAt');
+    res.status(200).json({
+        status: true,
+        length: userReviews?.length || 0,
+        reviews: userReviews,
+    });
+});

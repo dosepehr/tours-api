@@ -24,9 +24,9 @@ reviewRouter
     .get(getReview);
 
 reviewRouter
-    .route('/user/:userId')
+    .route('/byUser/:userId')
     .get(getReviewByUser);
 
-reviewRouter.route('/tour/:slug').get(getReviewByTour);
+reviewRouter.route('/byTour/:slug').get(getReviewByTour);
 
 module.exports = reviewRouter;
