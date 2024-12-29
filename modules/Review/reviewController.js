@@ -16,8 +16,6 @@ exports.addReview = expressAsyncHandler(async (req, res, next) => {
 });
 exports.getReviews = expressAsyncHandler(async (req, res, next) => {
     const reviews = await Review.find()
-        .populate('tour', '-__v -createdAt -updatedAt')
-        .populate('user', '-__v -createdAt -updatedAt');
     res.status(200).json({
         status: true,
         length: reviews?.length || 0,
@@ -46,8 +44,6 @@ exports.deleteReview = expressAsyncHandler(async (req, res, next) => {
 exports.getReview = expressAsyncHandler(async (req, res, next) => {
     const { id } = req.params;
     const review = await Review.findById(id)
-        .populate('tour', '-__v -createdAt -updatedAt')
-        .populate('user', '-__v -createdAt -updatedAt');
     res.status(200).json({
         status: true,
         review,
@@ -81,8 +77,6 @@ exports.getReviewByUser = expressAsyncHandler(async (req, res, next) => {
     const { userId } = req.params;
     const { status = 1 } = req.query;
     const userReviews = await Review.find({ user: userId, status })
-        .populate('tour', '-__v -createdAt -updatedAt')
-        .populate('user', '-__v -createdAt -updatedAt');
     res.status(200).json({
         status: true,
         length: userReviews?.length || 0,

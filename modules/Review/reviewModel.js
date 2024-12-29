@@ -34,6 +34,14 @@ const reviewSchema = new mongoose.Schema(
         timestamps: true,
     },
 );
+
+reviewSchema.pre(/^find/, function (next) {
+    this.populate('tour', '-__v -createdAt -updatedAt').populate(
+        'user',
+        '-__v -createdAt -updatedAt',
+    );
+    next();
+});
 const Review = mongoose.model('Review', reviewSchema);
 
 module.exports = Review;
