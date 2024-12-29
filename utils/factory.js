@@ -26,3 +26,21 @@ exports.addOne = (Model, validate) => {
         });
     });
 };
+
+exports.updateOne = (Model, validate) => {
+    return expressAsyncHandler(async (req, res, next) => {
+        const { id } = req.params;
+        if (validate) {
+            await validate(req.body);
+        }
+        await Model.findByIdAndUpdate(id, req.body, {
+            runValidators: true,
+            new: true,
+        });
+
+        res.status(200).json({
+            status: true,
+            message: 'updated',
+        });
+    });
+};

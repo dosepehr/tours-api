@@ -3,7 +3,7 @@ const sendRes = require('../../utils/sendRes');
 const Tour = require('./tourModel');
 const asyncHandler = require('express-async-handler');
 const tourValidation = require('./tourValidation');
-const { deleteOne, addOne } = require('../../utils/factory');
+const { deleteOne, addOne, updateOne } = require('../../utils/factory');
 
 exports.topTours = asyncHandler(async (req, res, next) => {
     req.query.limit = '5';
@@ -49,25 +49,6 @@ exports.getTour = asyncHandler(async (req, res, next) => {
     });
 });
 
-exports.addTour = addOne(Tour, (data) =>
-    tourValidation.validate(data, { context: { isUpdate: false } }),
-);
-
-exports.updateTour = asyncHandler(async (req, res, next) => {
-    const { id } = req.params;
-    // await tourValidation.validate(req.body, { context: { isUpdate: true } });
-
-    await Tour.findByIdAndUpdate(id, req.body, {
-        runValidators: true,
-    });
-
-    sendRes(res, 200, {
-        status: true,
-        message: 'tour updated',
-    });
-});
-
-exports.deleteTour = deleteOne(Tour);
 exports.getTourStats = asyncHandler(async (req, res, next) => {
     const stats = await Tour.aggregate([
         {
@@ -165,3 +146,12 @@ exports.getMonthlyPlan = asyncHandler(async (req, res, next) => {
         data: plan,
     });
 });
+
+exports.addTour = addOne(Tour, (data) =>
+    tourValidation.validate(data, { context: { isUpdate: false } }),
+);
+
+exports.deleteTour = deleteOne(Tour);
+exports.updateTour = updateOne(Tour, (data) =>
+    tourValidation.validate(data, { context: { isUpdate: true } }),
+);
