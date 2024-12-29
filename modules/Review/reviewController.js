@@ -24,7 +24,17 @@ exports.getReviews = expressAsyncHandler(async (req, res, next) => {
         data: reviews,
     });
 });
-exports.changeReviewStatus = expressAsyncHandler(async (req, res, next) => {});
+exports.changeReviewStatus = expressAsyncHandler(async (req, res, next) => {
+    const { id } = req.params;
+    const review = await Review.findById(id);
+    await Review.findByIdAndUpdate(id, {
+        status: review.status ? 0 : 1,
+    });
+    res.status(201).json({
+        status: true,
+        message: `review ${review.status ? 'rejected' : 'accepted'}`,
+    });
+});
 exports.deleteReview = expressAsyncHandler(async (req, res, next) => {});
 exports.getReview = expressAsyncHandler(async (req, res, next) => {});
 exports.getReviewByTour = expressAsyncHandler(async (req, res, next) => {});
