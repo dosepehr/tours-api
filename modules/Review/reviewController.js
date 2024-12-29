@@ -1,5 +1,6 @@
 const expressAsyncHandler = require('express-async-handler');
 const Review = require('./reviewModel');
+const { deleteOne } = require('../../utils/factory');
 // TODO add validation
 exports.addReview = expressAsyncHandler(async (req, res, next) => {
     const { review, rating, tour } = req.body;
@@ -35,14 +36,7 @@ exports.changeReviewStatus = expressAsyncHandler(async (req, res, next) => {
         message: `review ${review.status ? 'rejected' : 'accepted'}`,
     });
 });
-exports.deleteReview = expressAsyncHandler(async (req, res, next) => {
-    const { id } = req.params;
-    await Review.findByIdAndDelete(id);
-    res.status(200).json({
-        status: true,
-        message: 'review deleted successfully',
-    });
-});
+exports.deleteReview = deleteOne(Review);
 exports.getReview = expressAsyncHandler(async (req, res, next) => {
     const { id } = req.params;
     const review = await Review.findById(id)

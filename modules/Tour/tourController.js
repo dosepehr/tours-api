@@ -3,6 +3,7 @@ const sendRes = require('../../utils/sendRes');
 const Tour = require('./tourModel');
 const asyncHandler = require('express-async-handler');
 const tourValidation = require('./tourValidation');
+const { deleteOne } = require('../../utils/factory');
 
 exports.topTours = asyncHandler(async (req, res, next) => {
     req.query.limit = '5';
@@ -35,10 +36,7 @@ exports.getTour = asyncHandler(async (req, res, next) => {
     const { id } = req.params;
 
     const tour = await Tour.findById(id)
-        .populate(
-            'guides',
-            '-__v -createdAt -updatedAt',
-        )
+        .populate('guides', '-__v -createdAt -updatedAt')
 
         // virtual populate
         .populate('reviews');
@@ -74,14 +72,7 @@ exports.updateTour = asyncHandler(async (req, res, next) => {
     });
 });
 
-exports.deleteTour = asyncHandler(async (req, res, next) => {
-    const { id } = req.params;
-    await Tour.findByIdAndDelete(id);
-    sendRes(res, 204, {
-        status: true,
-        message: 'tour deleted',
-    });
-});
+exports.deleteTour = deleteOne(Tour);
 exports.getTourStats = asyncHandler(async (req, res, next) => {
     const stats = await Tour.aggregate([
         {
