@@ -36,10 +36,7 @@ const reviewSchema = new mongoose.Schema(
 );
 
 reviewSchema.pre(/^find/, function (next) {
-    this.populate('tour', '-__v -createdAt -updatedAt').populate(
-        'user',
-        '-__v -createdAt -updatedAt',
-    );
+    this.populate('tour', 'name slug').populate('user', 'name photo');
     next();
 });
 const Review = mongoose.model('Review', reviewSchema);
