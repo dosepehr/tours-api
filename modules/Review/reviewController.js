@@ -36,7 +36,16 @@ exports.changeReviewStatus = expressAsyncHandler(async (req, res, next) => {
     });
 });
 exports.deleteReview = expressAsyncHandler(async (req, res, next) => {});
-exports.getReview = expressAsyncHandler(async (req, res, next) => {});
+exports.getReview = expressAsyncHandler(async (req, res, next) => {
+    const { id } = req.params;
+    const review = await Review.findById(id)
+        .populate('tour', '-__v -createdAt -updatedAt')
+        .populate('user', '-__v -createdAt -updatedAt');
+    res.status(200).json({
+        status: true,
+        review,
+    });
+});
 exports.getReviewByTour = expressAsyncHandler(async (req, res, next) => {
     const { slug } = req.params;
     const { status = 1 } = req.query;
