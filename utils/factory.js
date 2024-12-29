@@ -44,3 +44,35 @@ exports.updateOne = (Model, validate) => {
         });
     });
 };
+
+exports.getAll = (Model) => {
+    return expressAsyncHandler(async (req, res, next) => {
+        const data = await Model.find();
+        res.status(200).json({
+            status: true,
+            length: data?.length || 0,
+            data,
+        });
+    });
+};
+
+exports.getOnebyId = (Model) => {
+    return expressAsyncHandler(async (req, res, next) => {
+        const { id } = req.params;
+
+        const data = await Model.findById(id)
+            .populate('guides', '-__v -createdAt -updatedAt')
+
+            // virtual populate
+            .populate('reviews');
+        res.status(200).json({
+            status: true,
+            data,
+        });
+    });
+};
+
+
+
+// TODO : edit reading routes
+// TODO fix tour validation routes
