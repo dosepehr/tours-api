@@ -34,11 +34,12 @@ const reviewSchema = new mongoose.Schema(
         timestamps: true,
     },
 );
-
-reviewSchema.pre(/^find/, function (next) {
-    this.populate('tour', 'name slug').populate('user', 'name photo');
-    next();
-});
+// use this to populate all find routes
+// reviewSchema.pre(/^find/, function (next) {
+//     this.populate('tour', 'name slug').populate('user', 'name photo');
+//     this.populate('user', 'name photo');
+//     next();
+// });
 const Review = mongoose.model('Review', reviewSchema);
 
 module.exports = Review;

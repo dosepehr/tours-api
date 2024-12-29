@@ -1,6 +1,6 @@
 const expressAsyncHandler = require('express-async-handler');
 const Review = require('./reviewModel');
-
+// TODO add validation
 exports.addReview = expressAsyncHandler(async (req, res, next) => {
     const { review, rating, tour } = req.body;
     const newReview = await Review.create({
@@ -16,6 +16,8 @@ exports.addReview = expressAsyncHandler(async (req, res, next) => {
 });
 exports.getReviews = expressAsyncHandler(async (req, res, next) => {
     const reviews = await Review.find()
+        .populate('tour', 'name slug')
+        .populate('user', 'name photo');
     res.status(200).json({
         status: true,
         length: reviews?.length || 0,
@@ -44,6 +46,8 @@ exports.deleteReview = expressAsyncHandler(async (req, res, next) => {
 exports.getReview = expressAsyncHandler(async (req, res, next) => {
     const { id } = req.params;
     const review = await Review.findById(id)
+        .populate('tour', 'name slug')
+        .populate('user', 'name photo');
     res.status(200).json({
         status: true,
         review,
@@ -59,11 +63,10 @@ exports.getReviewByTour = expressAsyncHandler(async (req, res, next) => {
         .populate({
             path: 'tour',
             match: { slug },
-            select: '-__v -createdAt -updatedAt',
+            select: 'name slug',
         })
-        .populate('user', '-__v -createdAt -updatedAt')
+        .populate('user', 'name photo')
         .lean();
-
     const reviews = filteredReviews.filter((review) => review.tour);
 
     res.status(200).json({
@@ -77,6 +80,8 @@ exports.getReviewByUser = expressAsyncHandler(async (req, res, next) => {
     const { userId } = req.params;
     const { status = 1 } = req.query;
     const userReviews = await Review.find({ user: userId, status })
+        .populate('tour', 'name slug')
+        .populate('user', 'name photo');
     res.status(200).json({
         status: true,
         length: userReviews?.length || 0,

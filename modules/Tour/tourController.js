@@ -34,10 +34,14 @@ exports.getTours = asyncHandler(async (req, res, next) => {
 exports.getTour = asyncHandler(async (req, res, next) => {
     const { id } = req.params;
 
-    const tour = await Tour.findById(id).populate(
-        'guides',
-        '-__v -passwordChangedAt -createdAt -updatedAt -password',
-    );
+    const tour = await Tour.findById(id)
+        .populate(
+            'guides',
+            '-__v -createdAt -updatedAt',
+        )
+
+        // virtual populate
+        .populate('reviews');
 
     sendRes(res, 200, {
         status: true,
