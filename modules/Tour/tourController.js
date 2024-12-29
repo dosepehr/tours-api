@@ -3,7 +3,7 @@ const sendRes = require('../../utils/sendRes');
 const Tour = require('./tourModel');
 const asyncHandler = require('express-async-handler');
 const tourValidation = require('./tourValidation');
-const { deleteOne } = require('../../utils/factory');
+const { deleteOne, addOne } = require('../../utils/factory');
 
 exports.topTours = asyncHandler(async (req, res, next) => {
     req.query.limit = '5';
@@ -49,14 +49,9 @@ exports.getTour = asyncHandler(async (req, res, next) => {
     });
 });
 
-exports.addTour = asyncHandler(async (req, res, next) => {
-    // await tourValidation.validate(req.body, { context: { isUpdate: false } }); TODO edit this
-    await Tour.create(req.body);
-    sendRes(res, 201, {
-        status: true,
-        message: 'tour created',
-    });
-});
+exports.addTour = addOne(Tour, (data) =>
+    tourValidation.validate(data, { context: { isUpdate: false } }),
+);
 
 exports.updateTour = asyncHandler(async (req, res, next) => {
     const { id } = req.params;
