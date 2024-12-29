@@ -18,7 +18,7 @@ userRouter.route('/login').post(login);
 
 userRouter.route('/forgotPassword').post(forgotPassword);
 userRouter.route('/resetPassword/:token').post(resetPassword);
-userRouter.route('/getMe').get(getMe);
+userRouter.route('/getMe').get(protect, getMe);
 userRouter.route('/updatePassword').patch(protect, updatePassword);
 userRouter.route('/updateMe').patch(protect, updateMe);
 userRouter.route('/deleteMe').patch(protect, deleteMe);

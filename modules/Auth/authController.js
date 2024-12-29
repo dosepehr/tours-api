@@ -129,23 +129,7 @@ exports.restrictTo = (...roles) => {
 };
 
 exports.getMe = expressAsyncHandler(async (req, res, next) => {
-    // 1) Getting token and check of it's there
-    let token;
-    if (
-        req.headers.authorization &&
-        req.headers.authorization.startsWith('Bearer')
-    ) {
-        token = req.headers.authorization.split(' ')[1];
-    }
-
-    if (!token) {
-        return next(new AppError('You are not logged in', 401));
-    }
-
-    // 2) Verification token
-    const decoded = await verifyToken(token);
-    // 3) check if user exists
-    const currentUser = await User.findById(decoded?.id).select(
+    const currentUser = await User.findById(req.id).select(
         '-password -passwordChangedAt -updatedAt -createdAt -_id -__v',
     );
     if (!currentUser) {
