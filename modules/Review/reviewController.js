@@ -35,7 +35,14 @@ exports.changeReviewStatus = expressAsyncHandler(async (req, res, next) => {
         message: `review ${review.status ? 'rejected' : 'accepted'}`,
     });
 });
-exports.deleteReview = expressAsyncHandler(async (req, res, next) => {});
+exports.deleteReview = expressAsyncHandler(async (req, res, next) => {
+    const { id } = req.params;
+    await Review.findByIdAndDelete(id);
+    res.status(200).json({
+        status: true,
+        message: 'review deleted successfully',
+    });
+});
 exports.getReview = expressAsyncHandler(async (req, res, next) => {
     const { id } = req.params;
     const review = await Review.findById(id)
