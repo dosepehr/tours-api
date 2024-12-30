@@ -1,4 +1,5 @@
 const process = require('process');
+const path = require('path');
 process.on('uncaughtException', (err) => {
     console.log('uncaughtException 💥 shutting down');
     console.log(err);
@@ -68,7 +69,8 @@ const corsOptions = {
         }
     },
 };
-
+// Serving static files
+app.use(express.static(path.join(__dirname, 'public')));
 app.use(cors(corsOptions));
 
 //* routes
