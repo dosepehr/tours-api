@@ -10,6 +10,8 @@ const {
     restrictTo,
 } = require('./../Auth/authController');
 const { updateMe, deleteMe, getUsers } = require('./userController');
+const uploader = require('../../utils/fileUploader');
+
 const userRouter = express.Router();
 
 userRouter.route('/').get(protect, restrictTo('admin'), getUsers);
@@ -20,6 +22,12 @@ userRouter.route('/forgotPassword').post(forgotPassword);
 userRouter.route('/resetPassword/:token').post(resetPassword);
 userRouter.route('/getMe').get(protect, getMe);
 userRouter.route('/updatePassword').patch(protect, updatePassword);
-userRouter.route('/updateMe').patch(protect, updateMe);
+userRouter
+    .route('/updateMe')
+    .patch(
+        protect,
+        uploader(['.png', '.jpg'], 3 * 1000 * 1000).single('profile'),
+        updateMe,
+    );
 userRouter.route('/deleteMe').patch(protect, deleteMe);
 module.exports = userRouter;

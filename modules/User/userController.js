@@ -2,6 +2,7 @@ const expressAsyncHandler = require('express-async-handler');
 const User = require('./userModel');
 const AppError = require('../../utils/AppError');
 const { editUserSchema } = require('./userValidation');
+
 exports.updateMe = expressAsyncHandler(async (req, res, next) => {
     // get user from token
     const userId = req?.user?.id;
@@ -14,6 +15,7 @@ exports.updateMe = expressAsyncHandler(async (req, res, next) => {
         {
             name: req.body.name,
             email: req.body.email,
+            photo: req?.file?.filename,
         },
         { new: true }, // This ensures the updated user is returned
     );
