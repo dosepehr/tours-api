@@ -31,6 +31,13 @@ exports.checkReviewBlongsToUser = expressAsyncHandler(
 );
 exports.addReview = expressAsyncHandler(async (req, res, next) => {
     const { review, rating, tour } = req.body;
+    const count = await Review.countDocuments({ tour, user: req.user.id });
+    if (count) {
+        return res.status(201).json({
+            status: false,
+            message: 'you already sent a review for this tour',
+        });
+    }
     const newReview = await Review.create({
         review,
         rating,
