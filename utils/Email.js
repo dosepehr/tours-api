@@ -4,7 +4,7 @@ const process = require('process');
 
 module.exports = class Email {
     constructor(user, url) {
-        this.to = user.emailو;
+        this.to = user.email;
         this.firstname = user.name;
         this.url = url;
         this.from = `Sepehr Do <${process.env.EMAIL_USERNAME}>`;

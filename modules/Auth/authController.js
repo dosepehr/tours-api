@@ -161,16 +161,17 @@ exports.forgotPassword = expressAsyncHandler(async (req, res, next) => {
     await user.save({
         validateBeforeSave: false,
     });
-    sendRes(res, 200, {
-        resetToken,
-    });
+
     // send back to user's email
     const resetURL = `${req.protocol}://${req.get(
         'host',
     )}/api/v1/users/resetPassword/${resetToken}`;
 
     try {
-    new Email(user, resetURL).sendPasswordReset();
+        await new Email(user, resetURL).sendPasswordReset();
+        sendRes(res, 200, {
+            resetToken,
+        });
     } catch (err) {
         user.passwordResetToken = undefined;
         user.passwordResetExpires = undefined;
