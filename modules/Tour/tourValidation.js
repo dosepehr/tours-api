@@ -71,7 +71,7 @@ const tourValidation = yup.object().shape({
         is: false,
         then: yup.string().required('The tour must have a cover image.'),
     }),
-    images: yup.array().of(yup.string().url('Each image must be a valid URL.')),
+    images: yup.array().of(yup.string()),
     startDates: yup
         .array()
         .of(yup.date().typeError('Start dates must be valid dates.')),

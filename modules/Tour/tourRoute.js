@@ -10,6 +10,8 @@ const {
     getMonthlyPlan,
 } = require('./tourController');
 const { protect, restrictTo } = require('../Auth/authController');
+const uploader = require('../../utils/fileUploader');
+const { resizePhotos } = require('../../utils/resizePhoto');
 
 const tourRouter = express.Router();
 
@@ -20,7 +22,11 @@ tourRouter.route('/monthly-plan/:year').get(getMonthlyPlan);
 tourRouter
     .route('/:id')
     .get(getTour)
-    .put(updateTour)
+    .put(
+        uploader(['.png'], 3 * 1000 * 1000).array('images', 2),
+        resizePhotos,
+        updateTour,
+    )
     .delete(protect, restrictTo('admin'), deleteTour);
 
 module.exports = tourRouter;
