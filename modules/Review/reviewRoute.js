@@ -8,6 +8,7 @@ const {
     getReview,
     getReviewByTour,
     getReviewByUser,
+    updateReviewByUser,
 } = require('./reviewController');
 
 const reviewRouter = express.Router();
@@ -23,9 +24,9 @@ reviewRouter
     .delete(protect, restrictTo('admin'), deleteReview)
     .get(getReview);
 
-reviewRouter
-    .route('/byUser/:userId')
-    .get(getReviewByUser);
+reviewRouter.route('/byUser/:userId').get(getReviewByUser);
+
+reviewRouter.route('/editReview/:reviewId').put(protect, updateReviewByUser);
 
 reviewRouter.route('/byTour/:slug').get(getReviewByTour);
 

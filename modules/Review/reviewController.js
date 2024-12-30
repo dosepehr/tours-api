@@ -81,3 +81,41 @@ exports.getReviewByUser = expressAsyncHandler(async (req, res, next) => {
         reviews: userReviews,
     });
 });
+
+exports.updateReviewByUser = expressAsyncHandler(async (req, res, next) => {
+    const { reviewId } = req.params;
+
+    // Fetch the review
+    const selectedReview = await Review.findById(reviewId);
+
+    // Check if the review exists
+    if (!selectedReview) {
+        return res.status(404).json({
+            status: false,
+            message: 'No review found',
+        });
+    }
+
+    // Check if the review belongs to the user
+    const isUserReview = selectedReview.user.toString() === req.user.id;
+    if (!isUserReview) {
+        return res.status(401).json({
+            status: false,
+            message: 'This review does not belong to you',
+        });
+    }
+
+    // Extract review and rating from the request body
+    const { review, rating } = req.body;
+
+    // Update the review
+    selectedReview.review = review;
+    selectedReview.rating = rating;
+    await selectedReview.save();
+
+    // Respond with success
+    res.status(200).json({
+        status: true,
+        message: 'Review updated successfully',
+    });
+});

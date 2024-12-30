@@ -5,7 +5,7 @@ const AppError = require('../../utils/AppError');
 
 const handleCastErrorDB = (err) => {
     const message = `Invalid ${err.path}: ${err.value}.`;
-    return new AppError(message, 400, ['This id is not correct']);
+    return new AppError(message, 400, [`This ${err.path} is not correct`]);
 };
 const handleDuplicateFieldsDB = (err) => {
     const value = err.errorResponse.errmsg.match(/(["'])(\\?.)*?\1/)[0];
