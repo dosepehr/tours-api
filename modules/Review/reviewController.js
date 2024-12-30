@@ -1,7 +1,6 @@
 const expressAsyncHandler = require('express-async-handler');
 const Review = require('./reviewModel');
-const { deleteOne } = require('../../utils/factory');
-// TODO add validation
+const { deleteOne, getAll } = require('../../utils/factory');
 exports.addReview = expressAsyncHandler(async (req, res, next) => {
     const { review, rating, tour } = req.body;
     const newReview = await Review.create({
@@ -15,16 +14,16 @@ exports.addReview = expressAsyncHandler(async (req, res, next) => {
         data: newReview,
     });
 });
-exports.getReviews = expressAsyncHandler(async (req, res, next) => {
-    const reviews = await Review.find()
-        .populate('tour', 'name slug')
-        .populate('user', 'name photo');
-    res.status(200).json({
-        status: true,
-        length: reviews?.length || 0,
-        data: reviews,
-    });
-});
+exports.getReviews = getAll(Review, {}, [
+    {
+        path: 'tour',
+        select: 'name slug',
+    },
+    {
+        path: 'user',
+        select: 'name photo',
+    },
+]);
 exports.changeReviewStatus = expressAsyncHandler(async (req, res, next) => {
     const { id } = req.params;
     const review = await Review.findById(id);

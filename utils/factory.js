@@ -48,19 +48,24 @@ exports.updateOne = (Model, validate) => {
 
 exports.getAll = (Model, condition = {}, populateOptions = []) => {
     return expressAsyncHandler(async (req, res, next) => {
-        let query = Model.find(condition);
-        const features = new APIFeatures(Model.find(condition), req.query)
+        // Build the base query using the APIFeatures class
+        let features = new APIFeatures(Model.find(condition), req.query)
             .filter()
             .sort()
             .limit()
             .paginate();
-        // Apply population if provided
+
+        // Apply population to the final query
+        let query = features.query;
         if (populateOptions.length) {
             populateOptions.forEach((pop) => {
                 query = query.populate(pop);
             });
         }
-        const data = await features.query;
+
+        // Execute the populated query
+        const data = await query;
+
         res.status(200).json({
             status: true,
             length: data?.length || 0,
