@@ -55,12 +55,11 @@ exports.getReviews = getAll(Review, {}, [
 exports.changeReviewStatus = expressAsyncHandler(async (req, res, next) => {
     const { id } = req.params;
     const review = await Review.findById(id);
-    await Review.findByIdAndUpdate(id, {
-        status: review.status ? 0 : 1,
-    });
+    review.status = review.status ? 0 : 1;
+    await review.save();
     res.status(201).json({
         status: true,
-        message: `review ${review.status ? 'rejected' : 'accepted'}`,
+        message: `review ${review.status ? 'accepted' : 'rejected'}`,
     });
 });
 exports.deleteReview = deleteOne(Review);

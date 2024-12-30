@@ -60,8 +60,8 @@ reviewSchema.statics.calcAvgRatings = async function (tourId) {
         },
     ]);
     await Tour.findByIdAndUpdate(tourId, {
-        ratingsQuantity: stats[0].nRating,
-        ratingsAverage: +stats[0].avgRating.toFixed(2),
+        ratingsQuantity: stats[0]?.nRating || 0,
+        ratingsAverage: +stats[0]?.avgRating.toFixed(2) || 4.5,
     });
 };
 
@@ -70,9 +70,19 @@ reviewSchema.post('save', function () {
     // this.constructor => current Model => Review
     this.constructor.calcAvgRatings(this.tour);
 });
-reviewSchema.pre(/^findOneAnd/, async function (next) {
-    const review = await this.findOne();
-    console.log(review);
+reviewSchema.pre('deleteOne', async function (next) {
+    // Use the model directly to fetch the document
+    const docToDelete = await this.model.findOne(this.getQuery());
+    if (docToDelete) {
+        this._doc = docToDelete; // Store the document for use in post middleware
+    }
+    next();
+});
+
+reviewSchema.post('deleteOne', async function () {
+    if (this._doc) {
+        await this._doc.constructor.calcAvgRatings(this._doc.tour);
+    }
 });
 
 const Review = mongoose.model('Review', reviewSchema);

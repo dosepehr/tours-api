@@ -33,7 +33,7 @@ reviewRouter
     .put(protect, checkReviewBlongsToUser, updateReviewByUser);
 reviewRouter
     .route('/deleteReview/:reviewId')
-    .delete(protect, deleteReviewByUser);
+    .delete(protect, checkReviewBlongsToUser, deleteReviewByUser);
 
 reviewRouter.route('/byTour/:slug').get(getReviewByTour);
 
