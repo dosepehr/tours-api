@@ -9,6 +9,8 @@ const {
     getReviewByTour,
     getReviewByUser,
     updateReviewByUser,
+    deleteReviewByUser,
+    checkReviewBlongsToUser,
 } = require('./reviewController');
 
 const reviewRouter = express.Router();
@@ -26,7 +28,12 @@ reviewRouter
 
 reviewRouter.route('/byUser/:userId').get(getReviewByUser);
 
-reviewRouter.route('/editReview/:reviewId').put(protect, updateReviewByUser);
+reviewRouter
+    .route('/editReview/:reviewId')
+    .put(protect, checkReviewBlongsToUser, updateReviewByUser);
+reviewRouter
+    .route('/deleteReview/:reviewId')
+    .delete(protect, deleteReviewByUser);
 
 reviewRouter.route('/byTour/:slug').get(getReviewByTour);
 

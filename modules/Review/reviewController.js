@@ -1,6 +1,34 @@
 const expressAsyncHandler = require('express-async-handler');
 const Review = require('./reviewModel');
 const { deleteOne, getAll } = require('../../utils/factory');
+
+exports.checkReviewBlongsToUser = expressAsyncHandler(
+    async (req, res, next) => {
+        const { reviewId } = req.params;
+
+        // Fetch the review
+        const selectedReview = await Review.findById(reviewId);
+
+        // Check if the review exists
+        if (!selectedReview) {
+            return res.status(404).json({
+                status: false,
+                message: 'No review found',
+            });
+        }
+
+        // Check if the review belongs to the user
+        const isUserReview = selectedReview.user.toString() === req.user.id;
+        if (!isUserReview) {
+            return res.status(401).json({
+                status: false,
+                message: 'This review does not belong to you',
+            });
+        }
+        req.selectedReview = selectedReview;
+        next();
+    },
+);
 exports.addReview = expressAsyncHandler(async (req, res, next) => {
     const { review, rating, tour } = req.body;
     const newReview = await Review.create({
@@ -83,29 +111,7 @@ exports.getReviewByUser = expressAsyncHandler(async (req, res, next) => {
 });
 
 exports.updateReviewByUser = expressAsyncHandler(async (req, res, next) => {
-    const { reviewId } = req.params;
-
-    // Fetch the review
-    const selectedReview = await Review.findById(reviewId);
-
-    // Check if the review exists
-    if (!selectedReview) {
-        return res.status(404).json({
-            status: false,
-            message: 'No review found',
-        });
-    }
-
-    // Check if the review belongs to the user
-    const isUserReview = selectedReview.user.toString() === req.user.id;
-    if (!isUserReview) {
-        return res.status(401).json({
-            status: false,
-            message: 'This review does not belong to you',
-        });
-    }
-
-    // Extract review and rating from the request body
+    const selectedReview = req.selectedReview;
     const { review, rating } = req.body;
 
     // Update the review
@@ -117,5 +123,15 @@ exports.updateReviewByUser = expressAsyncHandler(async (req, res, next) => {
     res.status(200).json({
         status: true,
         message: 'Review updated successfully',
+    });
+});
+
+exports.deleteReviewByUser = expressAsyncHandler(async (req, res, next) => {
+    await Review.deleteOne({
+        _id: req.params.reviewId,
+    });
+    res.status(200).json({
+        status: true,
+        message: 'Review deleted successfully',
     });
 });
