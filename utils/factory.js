@@ -1,5 +1,6 @@
 const expressAsyncHandler = require('express-async-handler');
 const AppError = require('./AppError');
+const APIFeatures = require('./APIFeatures');
 
 exports.deleteOne = (Model) => {
     return expressAsyncHandler(async (req, res, next) => {
@@ -45,9 +46,21 @@ exports.updateOne = (Model, validate) => {
     });
 };
 
-exports.getAll = (Model) => {
+exports.getAll = (Model, condition = {}, populateOptions = []) => {
     return expressAsyncHandler(async (req, res, next) => {
-        const data = await Model.find();
+        let query = Model.find(condition);
+        const features = new APIFeatures(Model.find(condition), req.query)
+            .filter()
+            .sort()
+            .limit()
+            .paginate();
+        // Apply population if provided
+        if (populateOptions.length) {
+            populateOptions.forEach((pop) => {
+                query = query.populate(pop);
+            });
+        }
+        const data = await features.query;
         res.status(200).json({
             status: true,
             length: data?.length || 0,
@@ -56,23 +69,36 @@ exports.getAll = (Model) => {
     });
 };
 
-exports.getOnebyId = (Model) => {
+exports.getOne = (Model, condition = {}, populateOptions = []) => {
     return expressAsyncHandler(async (req, res, next) => {
         const { id } = req.params;
+        const filter = id ? { _id: id } : condition;
 
-        const data = await Model.findById(id)
-            .populate('guides', '-__v -createdAt -updatedAt')
+        // Build the query
+        let query = Model.findOne(filter);
 
-            // virtual populate
-            .populate('reviews');
+        // Apply population if provided
+        if (populateOptions.length) {
+            populateOptions.forEach((pop) => {
+                query = query.populate(pop);
+            });
+        }
+
+        const data = await query;
+
+        if (!data) {
+            return res.status(404).json({
+                status: false,
+                message: 'Resource not found',
+            });
+        }
+
         res.status(200).json({
             status: true,
             data,
         });
     });
 };
-
-
 
 // TODO : edit reading routes
 // TODO fix tour validation routes

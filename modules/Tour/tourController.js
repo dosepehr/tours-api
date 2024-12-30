@@ -1,52 +1,20 @@
-const APIFeatures = require('../../utils/APIFeatures');
 const sendRes = require('../../utils/sendRes');
 const Tour = require('./tourModel');
 const asyncHandler = require('express-async-handler');
 const tourValidation = require('./tourValidation');
-const { deleteOne, addOne, updateOne } = require('../../utils/factory');
+const {
+    deleteOne,
+    addOne,
+    updateOne,
+    getOne,
+    getAll,
+} = require('../../utils/factory');
 
 exports.topTours = asyncHandler(async (req, res, next) => {
     req.query.limit = '5';
     req.query.sort = '-ratingsAverage,price';
     req.query.fields = 'name,price,ratingsAverage,summary,difficulty';
     next();
-});
-
-exports.getTours = asyncHandler(async (req, res, next) => {
-    const features = new APIFeatures(Tour.find(), req.query)
-        .filter()
-        .sort()
-        .limit()
-        .paginate();
-
-    const tours = await features.query.populate(
-        'guides',
-        '-__v -passwordChangedAt -createdAt -updatedAt -password',
-    );
-    sendRes(res, 200, {
-        status: true,
-        result: tours.length,
-        data: {
-            tours,
-        },
-    });
-});
-
-exports.getTour = asyncHandler(async (req, res, next) => {
-    const { id } = req.params;
-
-    const tour = await Tour.findById(id)
-        .populate('guides', '-__v -createdAt -updatedAt')
-
-        // virtual populate
-        .populate('reviews');
-
-    sendRes(res, 200, {
-        status: true,
-        data: {
-            tour,
-        },
-    });
 });
 
 exports.getTourStats = asyncHandler(async (req, res, next) => {
@@ -147,6 +115,17 @@ exports.getMonthlyPlan = asyncHandler(async (req, res, next) => {
     });
 });
 
+exports.getTours = getAll(Tour, {}, [
+    {
+        path: 'guides',
+        select: '-__v -passwordChangedAt -createdAt -updatedAt -password',
+    },
+]);
+exports.getTour = getOne(Tour, {}, [
+    { path: 'guides', select: '-__v -createdAt -updatedAt' },
+    // virtual populate
+    { path: 'reviews' },
+]);
 exports.addTour = addOne(Tour, (data) =>
     tourValidation.validate(data, { context: { isUpdate: false } }),
 );
