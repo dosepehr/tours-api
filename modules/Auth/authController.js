@@ -1,6 +1,7 @@
 const expressAsyncHandler = require('express-async-handler');
 const User = require('./../User/userModel');
 const sendRes = require('../../utils/sendRes');
+const process = require('process');
 const {
     loginUserSchema,
     signupUserSchema,
@@ -18,6 +19,7 @@ const {
 const sendEmail = require('../../utils/sendEmail');
 const crypto = require('crypto');
 exports.signup = expressAsyncHandler(async (req, res, next) => {
+    const jwtExpire = +process.env.jwtExpire.slice(0, 2);
     const userData = {
         name: req.body.name,
         email: req.body.email,
@@ -36,21 +38,20 @@ exports.signup = expressAsyncHandler(async (req, res, next) => {
         id: newUser._id,
     });
     res.cookie('auth', token, {
-        expires: new Date(Date.now() + 90 * 24 * 60 * 60 * 1000),
+        expires: new Date(Date.now() + jwtExpire * 24 * 60 * 60 * 1000),
         secure: false,
         httpOnly: true,
     })
         .status(201)
         .json({
             status: true,
-            token,
-            data: newUser,
         });
 });
 
 exports.login = expressAsyncHandler(async (req, res, next) => {
     const { email, password } = req.body;
     await loginUserSchema.validate({ email, password });
+    const jwtExpire = +process.env.jwtExpire.slice(0, 2);
 
     const user = await User.findOne({ email });
     if (!user) {
@@ -72,10 +73,15 @@ exports.login = expressAsyncHandler(async (req, res, next) => {
     const token = signToken({
         id: user._id,
     });
-    sendRes(res, 200, {
-        status: true,
-        token,
-    });
+    res.cookie('auth', token, {
+        expires: new Date(Date.now() + jwtExpire * 24 * 60 * 60 * 1000),
+        secure: false,
+        httpOnly: true,
+    })
+        .status(200)
+        .json({
+            status: true,
+        });
 });
 
 exports.protect = expressAsyncHandler(async (req, res, next) => {
