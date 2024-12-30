@@ -64,7 +64,7 @@ exports.getAll = (Model, condition = {}, populateOptions = []) => {
         }
 
         // Execute the populated query
-        const data = await query;
+        const data = await query
 
         res.status(200).json({
             status: true,

@@ -102,13 +102,20 @@ const tourSchema = new mongoose.Schema(
     },
 );
 
+//! adding indexes 
+// tourSchema.index(
+//     { price: 1 },
+//     {
+//         unique: true,
+//     },
+// );
 // virtual properties => derived properties
 tourSchema.virtual('durationWeeks').get(function () {
     return this.duration / 7;
 });
 
 // virtual populate
-tourSchema.virtual('reviews',{
+tourSchema.virtual('reviews', {
     ref: 'Review',
     foreignField: 'tour',
     localField: '_id',
