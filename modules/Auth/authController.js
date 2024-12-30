@@ -16,7 +16,7 @@ const {
     resetPasswordSchema,
     updatePasswordSchema,
 } = require('./authValidation');
-const sendEmail = require('../../utils/sendEmail');
+const Email = require('../../utils/Email');
 const crypto = require('crypto');
 exports.signup = expressAsyncHandler(async (req, res, next) => {
     const jwtExpire = +process.env.jwtExpire.slice(0, 2);
@@ -169,19 +169,8 @@ exports.forgotPassword = expressAsyncHandler(async (req, res, next) => {
         'host',
     )}/api/v1/users/resetPassword/${resetToken}`;
 
-    const text = `Forgot your password? Submit a PATCH request with your new password and passwordConfirm to: ${resetURL}.\nIf you didn't forget your password, please ignore this email!`;
-
     try {
-        await sendEmail({
-            to: user.email,
-            subject: 'Your password reset token (valid for 10 min)',
-            text,
-        });
-
-        res.status(200).json({
-            status: 'success',
-            message: 'Token sent to email!',
-        });
+    new Email(user, resetURL).sendPasswordReset();
     } catch (err) {
         user.passwordResetToken = undefined;
         user.passwordResetExpires = undefined;
