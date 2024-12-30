@@ -3,29 +3,24 @@ const path = require('path');
 const AppError = require('./AppError');
 
 const uploader = (validMimes, maxSize) => {
-    const storage = multer.diskStorage({
-        destination: (req, file, cb) => {
-            cb(null, 'public/uploads');
-        },
-        filename: (req, file, cb) => {
-            const filename = Date.now() + Math.floor(Math.random() * 1000);
-            const ext = path.extname(file.originalname);
-            if (validMimes.includes(ext)) {
-                cb(null, filename + ext);
-            } else {
-                cb(
-                    new AppError(
-                        `unvalid mime,please upload ${validMimes.join(',')}`,
-                        400,
-                    ),
-                );
-            }
-        },
-    });
+    const storage = multer.memoryStorage();
     const upload = multer({
         storage,
         limits: {
             fileSize: maxSize,
+        },
+        fileFilter: (req, file, cb) => {
+            const ext = path.extname(file.originalname);
+            if (validMimes.includes(ext)) {
+                cb(null, true);
+            } else {
+                cb(
+                    new AppError(
+                        `Invalid mime type. Please upload ${validMimes.join(',')}`,
+                        400,
+                    ),
+                );
+            }
         },
     });
     return upload;
