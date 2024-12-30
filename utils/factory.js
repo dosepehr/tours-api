@@ -17,9 +17,9 @@ exports.deleteOne = (Model) => {
 
 exports.addOne = (Model, validate) => {
     return expressAsyncHandler(async (req, res, next) => {
-        if (validate) {
-            await validate(req.body);
-        }
+        // if (validate) {
+        //     await validate(req.body);
+        // }
         await Model.create(req.body);
         res.status(201).json({
             status: true,
