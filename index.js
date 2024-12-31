@@ -60,21 +60,22 @@ app.use(
     }),
 );
 app.use(compression());
-const whitelist = ['http://localhost:3000'];
+const whitelist = [];
 const corsOptions = {
     origin: function (origin, callback) {
         // Allow requests with no origin (e.g., Postman or server-to-server requests)
         if (!origin || whitelist.indexOf(origin) !== -1) {
             callback(null, true);
         } else {
-            callback('Not allowed by CORS');
+            callback(new Error('Not allowed by CORS'));
         }
     },
 };
+app.use(cors(corsOptions));
+app.options('*', cors(corsOptions));
+
 // Serving static files
 app.use(express.static(path.join(__dirname, 'public')));
-app.use(cors(corsOptions));
-
 //* routes
 app.route('/').all((_, res) => {
     sendRes(res, 200, {
@@ -106,5 +107,12 @@ process.on('unhandledRejection', (err) => {
     console.log(err.name, err.message);
     server.close(() => {
         process.exit(1);
+    });
+});
+
+process.on('SIGTERM', () => {
+    console.log('👋 SIGTERM RECEIVED. Shutting down gracefully');
+    server.close(() => {
+        console.log('💥 Process terminated');
     });
 });
