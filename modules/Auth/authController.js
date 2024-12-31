@@ -19,7 +19,7 @@ const {
 const Email = require('../../utils/Email');
 const crypto = require('crypto');
 exports.signup = expressAsyncHandler(async (req, res, next) => {
-    const jwtExpire = +process.env.jwtExpire.slice(0, 2);
+    const JWT_EXPIRES = +process.env.JWT_EXPIRES.slice(0, 2);
     const userData = {
         name: req.body.name,
         email: req.body.email,
@@ -38,7 +38,7 @@ exports.signup = expressAsyncHandler(async (req, res, next) => {
         id: newUser._id,
     });
     res.cookie('auth', token, {
-        expires: new Date(Date.now() + jwtExpire * 24 * 60 * 60 * 1000),
+        expires: new Date(Date.now() + JWT_EXPIRES * 24 * 60 * 60 * 1000),
         secure: req.secure, // if https was on
         httpOnly: true,
     })
@@ -51,7 +51,7 @@ exports.signup = expressAsyncHandler(async (req, res, next) => {
 exports.login = expressAsyncHandler(async (req, res, next) => {
     const { email, password } = req.body;
     await loginUserSchema.validate({ email, password });
-    const jwtExpire = +process.env.jwtExpire.slice(0, 2);
+    const JWT_EXPIRES = +process.env.JWT_EXPIRES.slice(0, 2);
 
     const user = await User.findOne({ email });
     if (!user) {
@@ -74,7 +74,7 @@ exports.login = expressAsyncHandler(async (req, res, next) => {
         id: user._id,
     });
     res.cookie('auth', token, {
-        expires: new Date(Date.now() + jwtExpire * 24 * 60 * 60 * 1000),
+        expires: new Date(Date.now() + JWT_EXPIRES * 24 * 60 * 60 * 1000),
         secure: req.secure, // if https was on
         httpOnly: true,
     })
@@ -92,6 +92,8 @@ exports.protect = expressAsyncHandler(async (req, res, next) => {
         req.headers.authorization.startsWith('Bearer')
     ) {
         token = req.headers.authorization.split(' ')[1];
+    } else if (req.cookies.auth) {
+        token = req.cookies.auth;
     }
 
     if (!token) {

@@ -1,8 +1,8 @@
 const jwt = require('jsonwebtoken');
 const getEnv = require('./getEnv');
 
-const secretKey = getEnv('jwtSecretToken');
-const expiresIn = getEnv('jwtExpire');
+const secretKey = getEnv('JWT_SECRET');
+const expiresIn = getEnv('JWT_EXPIRES');
 
 const signToken = (payload) => {
     const token = jwt.sign(payload, secretKey, {

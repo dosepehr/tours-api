@@ -13,7 +13,7 @@ module.exports = class Email {
         if (process.env.NODE_ENV === 'prod') {
             // using email services
             return nodemailer.createTransport({
-                host: process.env.EMAIL_HOST,
+                host: process.env.EMAIL_HOST_MAILTRAP,
                 port: process.env.EMAIL_PORT,
                 auth: {
                     user: process.env.EMAIL_USERNAME,
@@ -23,7 +23,7 @@ module.exports = class Email {
         }
 
         return nodemailer.createTransport({
-            host: process.env.EMAIL_HOST,
+            host: process.env.EMAIL_HOST_MAILTRAP,
             port: process.env.EMAIL_PORT,
             auth: {
                 user: process.env.EMAIL_USERNAME,

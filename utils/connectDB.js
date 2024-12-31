@@ -1,8 +1,8 @@
 const mongoose = require('mongoose');
 const getEnv = require('./getEnv');
 
-const dbURI = getEnv('dbURI');
+const DB_URI = getEnv('DB_URI');
 mongoose
-    .connect(dbURI)
+    .connect(DB_URI)
     .then(() => console.log('DB Connected!'))
     .catch((err) => console.log('db connection error : ', err));

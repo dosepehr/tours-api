@@ -1,6 +1,5 @@
 const getEnv = require('../../utils/getEnv');
 const sendRes = require('../../utils/sendRes');
-const asyncHandler = require('express-async-handler');
 const AppError = require('../../utils/AppError');
 
 const handleCastErrorDB = (err) => {
@@ -43,7 +42,7 @@ const sendErrorProd = (err, res) => {
     if (err.isOperational) {
         sendRes(res, statusCode, {
             status: false,
-            message: message,
+            message,
             errors: err.errors,
         });
         // programming or other unknown error: don't leak error details
@@ -60,18 +59,14 @@ exports.globalErrorHandler = (err, req, res, next) => {
     if (NODE_ENV == 'dev') {
         sendErrorDev(err, res);
     } else if (NODE_ENV == 'prod') {
-        let error = { ...err, message: err.message };
-        console.log(err.message);
-        if (err.name === 'CastError') error = handleCastErrorDB(error);
-        if (err.code === 11000) error = handleDuplicateFieldsDB(error);
-        if (err.name === 'ValidationError')
+        let error = { ...err, message: err.message, name: err.name };
+        console.log(error.message);
+        if (error.name === 'CastError') error = handleCastErrorDB(error);
+        if (error.code === 11000) error = handleDuplicateFieldsDB(error);
+        if (error.name === 'ValidationError')
             error = handleValidationErrorDB(error);
-        if (err.name == 'JsonWebTokenError') error = handleJWTError();
-        if (err.name == 'TokenExpiredError') error = handleTokenExpiredError();
+        if (error.name == 'JsonWebTokenError') error = handleJWTError();
+        if (error.name == 'TokenExpiredError') error = handleTokenExpiredError();
         sendErrorProd(error, res);
     }
 };
-
-exports.customError = asyncHandler(async (req, res, next) => {
-    throw new AppError('error', 300, ['error1', 'error2']);
-});

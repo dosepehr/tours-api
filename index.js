@@ -13,7 +13,6 @@ const getEnv = require('./utils/getEnv');
 const sendRes = require('./utils/sendRes');
 //* routes & error handling
 const tourRouter = require('./modules/Tour/tourRoute');
-const errorRouter = require('./modules/Error/errorRoute');
 const { globalErrorHandler } = require('./modules/Error/errorController');
 const userRouter = require('./modules/User/userRoute');
 const AppError = require('./utils/AppError');
@@ -27,6 +26,7 @@ const bodyParser = require('body-parser');
 const hpp = require('hpp');
 const reviewRouter = require('./modules/Review/reviewRoute');
 const compression = require('compression');
+
 const limiter = rateLimit({
     windowMs: 60 * 60 * 1000, // 15 minutes
     message: 'Too many requests from this IP, please try again in an hour',
@@ -42,7 +42,9 @@ require('./utils/connectDB');
 const app = express();
 app.use(express.json({ limit: '10kb' }));
 app.use(bodyParser.json());
-app.use(morgan('dev'));
+if (process.env.NODE_ENV == 'dev') {
+    app.use(morgan('dev'));
+}
 app.use('/api', limiter);
 app.use(helmet());
 app.use(mongoSanitize());
@@ -75,6 +77,7 @@ app.use(cors(corsOptions));
 app.options('*', cors(corsOptions));
 
 // Serving static files
+
 app.use(express.static(path.join(__dirname, 'public')));
 //* routes
 app.route('/').all((_, res) => {
@@ -85,7 +88,6 @@ app.route('/').all((_, res) => {
 });
 
 app.use('/api/v1/tours', tourRouter);
-app.use('/api/v1/errors', errorRouter);
 app.use('/api/v1/users', userRouter);
 app.use('/api/v1/reviews', reviewRouter);
 //* 404 route
