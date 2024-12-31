@@ -26,6 +26,7 @@ const { xss } = require('express-xss-sanitizer');
 const bodyParser = require('body-parser');
 const hpp = require('hpp');
 const reviewRouter = require('./modules/Review/reviewRoute');
+const compression = require('compression');
 const limiter = rateLimit({
     windowMs: 60 * 60 * 1000, // 15 minutes
     message: 'Too many requests from this IP, please try again in an hour',
@@ -58,6 +59,7 @@ app.use(
         ],
     }),
 );
+app.use(compression());
 const whitelist = ['http://localhost:3000'];
 const corsOptions = {
     origin: function (origin, callback) {

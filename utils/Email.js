@@ -1,4 +1,4 @@
-const { htmlToText, convert } = require('html-to-text');
+const { convert } = require('html-to-text');
 const nodemailer = require('nodemailer');
 const process = require('process');
 
