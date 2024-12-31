@@ -39,7 +39,7 @@ exports.signup = expressAsyncHandler(async (req, res, next) => {
     });
     res.cookie('auth', token, {
         expires: new Date(Date.now() + jwtExpire * 24 * 60 * 60 * 1000),
-        secure: false,
+        secure: req.secure, // if https was on
         httpOnly: true,
     })
         .status(201)
@@ -75,7 +75,7 @@ exports.login = expressAsyncHandler(async (req, res, next) => {
     });
     res.cookie('auth', token, {
         expires: new Date(Date.now() + jwtExpire * 24 * 60 * 60 * 1000),
-        secure: false,
+        secure: req.secure, // if https was on
         httpOnly: true,
     })
         .status(200)
